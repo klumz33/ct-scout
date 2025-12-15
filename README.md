@@ -9,6 +9,14 @@ ct-scout monitors Certificate Transparency logs in real-time to discover newly i
 
 ## 🚀 Features
 
+### ⭐ NEW: Phase 2 - Enterprise Automation
+- **PostgreSQL/Neon Database** - Persistent storage with full historical analysis
+- **HackerOne Integration** - Auto-sync watchlist from your H1 programs
+- **Intigriti Integration** - Auto-sync watchlist from your Intigriti programs
+- **Zero Configuration** - Just add API tokens, programs sync automatically
+- **Historical Queries** - Query matches by domain, program, date range
+- **Multi-Instance Support** - Shared database enables distributed deployments
+
 ### Core Capabilities
 - **Direct CT Log Monitoring** - No external dependencies, monitors CT logs directly via RFC 6962
 - **187 CT Logs Supported** - Monitor up to 187 logs from Google's list (exceeds gungnir's 49-60)
@@ -173,6 +181,69 @@ Webhook payload format:
   "program_name": "Example Bug Bounty"
 }
 ```
+
+### Phase 2: Database & Platform APIs
+
+**PostgreSQL/Neon Database:**
+```toml
+[database]
+enabled = true
+url = "postgresql://user:pass@neon.tech/ctscout?sslmode=require"
+max_connections = 20
+```
+
+**HackerOne Integration:**
+```toml
+[platforms.hackerone]
+enabled = true
+username = "your-username"
+api_token = "your-h1-api-token"
+```
+
+**Intigriti Integration:**
+```toml
+[platforms.intigriti]
+enabled = true
+api_token = "your-intigriti-token"
+```
+
+**Full Enterprise Stack:**
+```toml
+[logging]
+level = "info"
+
+[database]
+enabled = true
+url = "postgresql://neon.tech/ctscout?sslmode=require"
+max_connections = 20
+
+[platforms]
+sync_interval_hours = 6
+
+[platforms.hackerone]
+enabled = true
+username = "your-username"
+api_token = "your-h1-token"
+
+[platforms.intigriti]
+enabled = true
+api_token = "your-intigriti-token"
+
+[ct_logs]
+include_all_logs = true
+max_concurrent_logs = 187
+parse_precerts = true
+
+[watchlist]
+# Optional - platforms will auto-populate
+domains = []
+
+[webhook]
+url = "https://your-webhook.com/alerts"
+secret = "your-secret"
+```
+
+**Result:** Zero-configuration bug bounty automation with full historical tracking!
 
 ### Program-Based Organization
 
