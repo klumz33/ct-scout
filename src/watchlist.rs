@@ -185,6 +185,45 @@ impl Watchlist {
         }
         None
     }
+
+    /// Add a domain to a program, creating the program if it doesn't exist
+    pub fn add_domain_to_program(&mut self, domain: &str, program_name: &str) {
+        if let Some(program) = self.programs.iter_mut().find(|p| p.name == program_name) {
+            if !program.domains.contains(&domain.to_string()) {
+                program.domains.push(domain.to_string());
+            }
+        } else {
+            self.programs.push(Program {
+                name: program_name.to_string(),
+                domains: vec![domain.to_string()],
+                hosts: Vec::new(),
+                ips: Vec::new(),
+                cidrs: Vec::new(),
+            });
+        }
+    }
+
+    /// Add a host to a program, creating the program if it doesn't exist
+    pub fn add_host_to_program(&mut self, host: &str, program_name: &str) {
+        if let Some(program) = self.programs.iter_mut().find(|p| p.name == program_name) {
+            if !program.hosts.contains(&host.to_string()) {
+                program.hosts.push(host.to_string());
+            }
+        } else {
+            self.programs.push(Program {
+                name: program_name.to_string(),
+                domains: Vec::new(),
+                hosts: vec![host.to_string()],
+                ips: Vec::new(),
+                cidrs: Vec::new(),
+            });
+        }
+    }
+
+    /// Get all programs
+    pub fn programs(&self) -> &[Program] {
+        &self.programs
+    }
 }
 
 #[cfg(test)]
@@ -394,5 +433,14 @@ mod tests {
         assert!(!watchlist.matches_domain("anything.com"));
         assert!(!watchlist.matches_ip(&"1.2.3.4".parse().unwrap()));
         assert!(watchlist.program_for_domain("anything.com").is_none());
+    }
+
+    #[test]
+    fn test_add_domain_to_program() {
+        let mut watchlist = Watchlist::default();
+        watchlist.add_domain_to_program("*.example.com", "Test Program");
+
+        assert!(watchlist.matches_domain("sub.example.com"));
+        assert!(watchlist.program_for_domain("sub.example.com").is_some());
     }
 }

@@ -102,6 +102,41 @@ impl Default for DatabaseConfig {
     }
 }
 
+#[derive(Debug, Deserialize, Clone)]
+pub struct PlatformsConfig {
+    #[serde(default)]
+    pub hackerone: Option<HackerOneConfig>,
+    #[serde(default)]
+    pub intigriti: Option<IntigritiConfig>,
+    #[serde(default = "default_sync_interval_hours")]
+    pub sync_interval_hours: u64,
+}
+
+#[derive(Debug, Deserialize, Clone)]
+pub struct HackerOneConfig {
+    pub enabled: bool,
+    pub username: String,
+    pub api_token: String,
+}
+
+#[derive(Debug, Deserialize, Clone)]
+pub struct IntigritiConfig {
+    pub enabled: bool,
+    pub api_token: String,
+}
+
+fn default_sync_interval_hours() -> u64 { 6 }
+
+impl Default for PlatformsConfig {
+    fn default() -> Self {
+        Self {
+            hackerone: None,
+            intigriti: None,
+            sync_interval_hours: default_sync_interval_hours(),
+        }
+    }
+}
+
 #[derive(Debug, Deserialize)]
 pub struct Config {
     #[serde(default)]
@@ -110,6 +145,8 @@ pub struct Config {
     pub webhook: Option<WebhookConfig>,
     #[serde(default)]
     pub database: DatabaseConfig,
+    #[serde(default)]
+    pub platforms: PlatformsConfig,
     pub logging: LoggingConfig,
     pub watchlist: WatchlistConfig,
     #[serde(default)]

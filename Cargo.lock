@@ -537,6 +537,7 @@ dependencies = [
  "toml",
  "tracing",
  "tracing-subscriber",
+ "url",
  "wiremock",
  "x509-parser",
 ]

@@ -27,6 +27,7 @@ base64 = "0.21"
 chrono = "0.4"
 
 ipnet = "2.9"
+url = "2"
 
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["fmt", "env-filter"] }

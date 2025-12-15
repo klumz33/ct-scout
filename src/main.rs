@@ -7,6 +7,7 @@ use ct_scout::database::{DatabaseBackend, PostgresBackend};
 use ct_scout::dedupe::Dedupe;
 use ct_scout::filter::RootDomainFilter;
 use ct_scout::output::{csv, human, json, silent, webhook, OutputManager};
+use ct_scout::platforms::{HackerOneAPI, IntigritiAPI, PlatformAPI};
 use ct_scout::progress::ProgressIndicator;
 use ct_scout::state::StateManager;
 use ct_scout::stats::StatsCollector;
@@ -65,7 +66,7 @@ async fn main() -> anyhow::Result<()> {
     tracing::info!("Starting ct-scout...");
 
     // Create watchlist
-    let watchlist = Watchlist::from_config(&config.watchlist, &config.programs)?;
+    let mut watchlist = Watchlist::from_config(&config.watchlist, &config.programs)?;
     tracing::info!(
         "Loaded watchlist: {} domains, {} hosts, {} IPs, {} CIDRs",
         config.watchlist.domains.len(),
@@ -73,6 +74,96 @@ async fn main() -> anyhow::Result<()> {
         config.watchlist.ips.len(),
         config.watchlist.cidrs.len()
     );
+
+    // Sync with bug bounty platforms if configured
+    if config.platforms.hackerone.as_ref().map(|h| h.enabled).unwrap_or(false)
+        || config.platforms.intigriti.as_ref().map(|i| i.enabled).unwrap_or(false)
+    {
+        tracing::info!("Platform API integration enabled, syncing watchlist...");
+
+        let mut platforms: Vec<Box<dyn PlatformAPI>> = Vec::new();
+
+        // Initialize HackerOne if configured
+        if let Some(h1_config) = &config.platforms.hackerone {
+            if h1_config.enabled {
+                tracing::info!("Initializing HackerOne API integration");
+                let h1_api = HackerOneAPI::new(
+                    h1_config.username.clone(),
+                    h1_config.api_token.clone(),
+                )?;
+
+                // Test connection
+                match h1_api.test_connection().await {
+                    Ok(true) => {
+                        tracing::info!("HackerOne API connection successful");
+                        platforms.push(Box::new(h1_api));
+                    }
+                    Ok(false) => {
+                        tracing::warn!("HackerOne API connection failed (invalid credentials?)");
+                    }
+                    Err(e) => {
+                        tracing::error!("HackerOne API connection error: {:?}", e);
+                    }
+                }
+            }
+        }
+
+        // Initialize Intigriti if configured
+        if let Some(intigriti_config) = &config.platforms.intigriti {
+            if intigriti_config.enabled {
+                tracing::info!("Initializing Intigriti API integration");
+                let intigriti_api = IntigritiAPI::new(intigriti_config.api_token.clone())?;
+
+                // Test connection
+                match intigriti_api.test_connection().await {
+                    Ok(true) => {
+                        tracing::info!("Intigriti API connection successful");
+                        platforms.push(Box::new(intigriti_api));
+                    }
+                    Ok(false) => {
+                        tracing::warn!("Intigriti API connection failed (invalid credentials?)");
+                    }
+                    Err(e) => {
+                        tracing::error!("Intigriti API connection error: {:?}", e);
+                    }
+                }
+            }
+        }
+
+        // Sync programs from platforms
+        for platform in platforms {
+            match platform.fetch_programs().await {
+                Ok(programs) => {
+                    tracing::info!(
+                        "Fetched {} programs from {}",
+                        programs.len(),
+                        platform.name()
+                    );
+
+                    for program in programs {
+                        for domain in program.domains {
+                            watchlist.add_domain_to_program(&domain, &program.name);
+                        }
+                        for host in program.hosts {
+                            watchlist.add_host_to_program(&host, &program.name);
+                        }
+                    }
+                }
+                Err(e) => {
+                    tracing::error!(
+                        "Failed to fetch programs from {}: {:?}",
+                        platform.name(),
+                        e
+                    );
+                }
+            }
+        }
+
+        tracing::info!(
+            "Platform sync complete. Total programs: {}",
+            watchlist.programs().len()
+        );
+    }
 
     // Create dedupe
     let dedupe = if cli.no_dedupe {

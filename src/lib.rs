@@ -9,6 +9,7 @@ pub mod dedupe;
 pub mod filter;
 pub mod notifier;
 pub mod output;
+pub mod platforms;
 pub mod progress;
 pub mod state;
 pub mod stats;
