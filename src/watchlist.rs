@@ -224,6 +224,54 @@ impl Watchlist {
     pub fn programs(&self) -> &[Program] {
         &self.programs
     }
+
+    /// Export watchlist to TOML format
+    pub fn export_to_toml(&self) -> String {
+        let mut output = String::new();
+
+        // Export global watchlist
+        output.push_str("[watchlist]\n");
+        output.push_str(&format!("domains = {:?}\n", self.global_domains));
+        output.push_str(&format!("hosts = {:?}\n", self.global_hosts));
+
+        let global_ips_str: Vec<String> = self.global_ips.iter().map(|ip| ip.to_string()).collect();
+        output.push_str(&format!("ips = {:?}\n", global_ips_str));
+
+        let global_cidrs_str: Vec<String> = self.global_cidrs.iter().map(|cidr| cidr.to_string()).collect();
+        output.push_str(&format!("cidrs = {:?}\n", global_cidrs_str));
+
+        output.push('\n');
+
+        // Export programs
+        for program in &self.programs {
+            output.push_str("[[programs]]\n");
+            output.push_str(&format!("name = \"{}\"\n", program.name));
+            output.push_str(&format!("domains = {:?}\n", program.domains));
+            output.push_str(&format!("hosts = {:?}\n", program.hosts));
+
+            let program_ips_str: Vec<String> = program.ips.iter().map(|ip| ip.to_string()).collect();
+            output.push_str(&format!("ips = {:?}\n", program_ips_str));
+
+            let program_cidrs_str: Vec<String> = program.cidrs.iter().map(|cidr| cidr.to_string()).collect();
+            output.push_str(&format!("cidrs = {:?}\n", program_cidrs_str));
+
+            output.push('\n');
+        }
+
+        output
+    }
+}
+
+impl Default for Watchlist {
+    fn default() -> Self {
+        Self {
+            global_domains: Vec::new(),
+            global_hosts: Vec::new(),
+            global_ips: Vec::new(),
+            global_cidrs: Vec::new(),
+            programs: Vec::new(),
+        }
+    }
 }
 
 #[cfg(test)]

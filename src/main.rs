@@ -165,6 +165,15 @@ async fn main() -> anyhow::Result<()> {
         );
     }
 
+    // Handle --export-scope flag
+    if cli.export_scope {
+        tracing::info!("Exporting current scope to TOML format...");
+        let toml_output = watchlist.export_to_toml();
+        println!("{}", toml_output);
+        tracing::info!("Export complete. Exiting.");
+        return Ok(());
+    }
+
     // Create dedupe
     let dedupe = if cli.no_dedupe {
         tracing::info!("Deduplication disabled");

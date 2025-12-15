@@ -159,7 +159,17 @@ impl PlatformAPI for HackerOneAPI {
 
     async fn fetch_programs(&self) -> Result<Vec<Program>> {
         let programs_list = self.fetch_programs_list().await?;
+        let total_programs = programs_list.len();
         let mut programs = Vec::new();
+        let mut restricted_count = 0;
+        let mut empty_scope_count = 0;
+
+        info!(
+            "HackerOne API returned {} programs (programs you're invited to or public programs)",
+            total_programs
+        );
+        info!("Fetching structured scope for each program...");
+        info!("Note: 403 Forbidden errors are expected for private programs you're not enrolled in");
 
         for program_data in programs_list {
             let attributes = &program_data["attributes"];
@@ -176,11 +186,19 @@ impl PlatformAPI for HackerOneAPI {
                 Ok(d) => d,
                 Err(e) => {
                     warn!("Failed to fetch scope for {}: {}", handle, e);
+                    restricted_count += 1;
                     continue;
                 }
             };
 
             if !domains.is_empty() {
+                info!(
+                    "✓ Program '{}' (@{}): {} domains in scope",
+                    name,
+                    handle,
+                    domains.len()
+                );
+                debug!("  Domains: {:?}", domains);
                 programs.push(Program {
                     id,
                     name,
@@ -189,10 +207,21 @@ impl PlatformAPI for HackerOneAPI {
                     hosts: Vec::new(), // HackerOne API doesn't separate hosts
                     in_scope: true,
                 });
+            } else {
+                empty_scope_count += 1;
             }
         }
 
-        info!("Successfully fetched {} programs from HackerOne", programs.len());
+        info!("─────────────────────────────────────────────────────────────");
+        info!(
+            "HackerOne sync complete: {} accessible programs with domains (out of {} total)",
+            programs.len(),
+            total_programs
+        );
+        info!("  • Accessible with domains: {}", programs.len());
+        info!("  • Restricted/no access: {}", restricted_count);
+        info!("  • Empty scope: {}", empty_scope_count);
+        info!("─────────────────────────────────────────────────────────────");
         Ok(programs)
     }
 

@@ -87,6 +87,11 @@ pub struct Cli {
     /// Quiet logging (set log level to warn)
     #[arg(short = 'q', long = "quiet")]
     pub quiet: bool,
+
+    // ===== Utility Commands =====
+    /// Export current scope (config + platforms) to TOML format and exit
+    #[arg(long = "export-scope")]
+    pub export_scope: bool,
 }
 
 impl Cli {

@@ -18,49 +18,15 @@ impl PostgresBackend {
     pub async fn new(database_url: &str, max_connections: u32) -> Result<Self> {
         info!("Connecting to PostgreSQL database");
 
-        // Clean connection string by removing unsupported parameters
-        // sqlx 0.8.x doesn't recognize 'channel_binding' parameter from Neon
-        let cleaned_url = Self::clean_connection_string(database_url);
-
         let pool = PgPoolOptions::new()
             .max_connections(max_connections)
-            .connect(&cleaned_url)
+            .connect(database_url)
             .await
             .context("Failed to connect to PostgreSQL database")?;
 
         info!("Connected to PostgreSQL successfully");
 
         Ok(Self { pool })
-    }
-
-    /// Remove unsupported connection string parameters
-    /// Prevents warnings from sqlx about unrecognized parameters
-    fn clean_connection_string(url_str: &str) -> String {
-        use url::Url;
-
-        // Try to parse as URL and remove unsupported query parameters
-        if let Ok(mut url) = Url::parse(url_str) {
-            // List of parameters that sqlx doesn't recognize but are safe to remove
-            let unsupported_params = ["channel_binding"];
-
-            // Filter out unsupported parameters
-            let cleaned_pairs: Vec<(String, String)> = url
-                .query_pairs()
-                .filter(|(key, _)| !unsupported_params.contains(&key.as_ref()))
-                .map(|(k, v)| (k.to_string(), v.to_string()))
-                .collect();
-
-            // Clear and rebuild query string
-            url.query_pairs_mut().clear();
-            for (key, value) in cleaned_pairs {
-                url.query_pairs_mut().append_pair(&key, &value);
-            }
-
-            url.to_string()
-        } else {
-            // If URL parsing fails, return original
-            url_str.to_string()
-        }
     }
 
     /// Run database migrations

@@ -190,6 +190,13 @@ impl PlatformAPI for IntigritiAPI {
         let mut restricted_count = 0;
         let mut empty_scope_count = 0;
 
+        info!(
+            "Intigriti API returns all {} public programs on the platform (not just enrolled programs)",
+            total_programs
+        );
+        info!("Attempting to fetch scope details for each program...");
+        info!("Note: 403 FORBID001 errors are expected for programs you're not enrolled in or that are restricted");
+
         for program_data in programs_list {
             let program_id = program_data["id"].as_str().unwrap_or("").to_string();
             let name = program_data["name"].as_str().unwrap_or("").to_string();
@@ -210,6 +217,13 @@ impl PlatformAPI for IntigritiAPI {
             };
 
             if !domains.is_empty() {
+                info!(
+                    "✓ Program '{}' ({}): {} domains in scope",
+                    name,
+                    handle,
+                    domains.len()
+                );
+                debug!("  Domains: {:?}", domains);
                 programs.push(Program {
                     id: program_id.clone(),
                     name,
@@ -223,13 +237,16 @@ impl PlatformAPI for IntigritiAPI {
             }
         }
 
+        info!("─────────────────────────────────────────────────────────────");
         info!(
-            "Intigriti sync: {} total programs, {} accessible with domains, {} restricted/forbidden, {} with empty scope",
-            total_programs,
+            "Intigriti sync complete: {} accessible programs with domains (out of {} total)",
             programs.len(),
-            restricted_count,
-            empty_scope_count
+            total_programs
         );
+        info!("  • Accessible with domains: {}", programs.len());
+        info!("  • Restricted/not enrolled: {}", restricted_count);
+        info!("  • Empty scope: {}", empty_scope_count);
+        info!("─────────────────────────────────────────────────────────────");
         Ok(programs)
     }
 
