@@ -1,10 +1,12 @@
 // src/database/state_manager.rs
 use anyhow::Result;
+use async_trait::async_trait;
 use std::sync::Arc;
 use tokio::sync::Mutex;
 use tracing::{debug, warn};
 
 use super::DatabaseBackend;
+use crate::state::StateBackend;
 
 /// Database-backed state manager for CT log tracking
 /// Drop-in replacement for TOML-based StateManager
@@ -80,5 +82,29 @@ impl Clone for DbStateManager {
             db: Arc::clone(&self.db),
             save_counter: Arc::clone(&self.save_counter),
         }
+    }
+}
+
+/// Implement StateBackend trait for DbStateManager
+#[async_trait]
+impl StateBackend for DbStateManager {
+    async fn get_last_index(&self, log_url: &str) -> Option<u64> {
+        self.get_last_index(log_url).await
+    }
+
+    async fn update_index(&self, log_url: &str, index: u64) {
+        self.update_index(log_url, index).await
+    }
+
+    async fn save(&self) -> Result<()> {
+        self.save().await
+    }
+
+    async fn get_tracked_logs(&self) -> Vec<String> {
+        self.get_tracked_logs().await
+    }
+
+    async fn count(&self) -> usize {
+        self.count().await
     }
 }

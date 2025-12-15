@@ -18,6 +18,8 @@ pub struct CtLogConfig {
     pub additional_logs: Option<Vec<String>>,  // Merges with Google list
     #[serde(default = "default_state_file")]
     pub state_file: String,
+    #[serde(default = "default_state_backend")]
+    pub state_backend: String,  // "file" or "database"
     #[serde(default = "default_max_concurrent_logs")]
     pub max_concurrent_logs: usize,
     #[serde(default = "default_parse_precerts")]
@@ -36,6 +38,7 @@ fn default_log_list_url() -> String {
     "https://www.gstatic.com/ct/log_list/v3/all_logs_list.json".to_string()
 }
 fn default_state_file() -> String { "ct-scout-state.toml".to_string() }
+fn default_state_backend() -> String { "file".to_string() }
 fn default_max_concurrent_logs() -> usize { 100 }
 fn default_parse_precerts() -> bool { true }
 fn default_include_readonly_logs() -> bool { false }
@@ -162,6 +165,7 @@ impl Default for CtLogConfig {
             custom_logs: None,
             additional_logs: None,
             state_file: default_state_file(),
+            state_backend: default_state_backend(),
             max_concurrent_logs: default_max_concurrent_logs(),
             parse_precerts: default_parse_precerts(),
             include_readonly_logs: default_include_readonly_logs(),

@@ -12,7 +12,7 @@ use crate::dedupe::Dedupe;
 use crate::filter::RootDomainFilter;
 use crate::output::OutputManager;
 use crate::progress::ProgressIndicator;
-use crate::state::StateManager;
+use crate::state::StateBackend;
 use crate::stats::StatsCollector;
 use crate::types::{CertData, MatchResult};
 use crate::watchlist::Watchlist;
@@ -30,7 +30,7 @@ impl CtLogCoordinator {
     /// Create new coordinator for multiple CT logs
     pub fn new(
         log_urls: Vec<String>,
-        state_manager: Arc<StateManager>,
+        state_manager: Arc<dyn StateBackend>,
         poll_interval_secs: u64,
         batch_size: u64,
         parse_precerts: bool,

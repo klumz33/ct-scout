@@ -1,11 +1,32 @@
 // src/state.rs
 use anyhow::{Context, Result};
+use async_trait::async_trait;
 use std::collections::HashMap;
 use std::path::PathBuf;
 use std::sync::Arc;
 use tokio::fs;
 use tokio::sync::Mutex;
 use tracing::{debug, info, warn};
+
+/// Trait for state backend abstraction
+/// Allows different implementations (file-based, database-based)
+#[async_trait]
+pub trait StateBackend: Send + Sync {
+    /// Get last-seen index for a CT log
+    async fn get_last_index(&self, log_url: &str) -> Option<u64>;
+
+    /// Update last-seen index for a CT log
+    async fn update_index(&self, log_url: &str, index: u64);
+
+    /// Manually save state
+    async fn save(&self) -> Result<()>;
+
+    /// Get all tracked log URLs
+    async fn get_tracked_logs(&self) -> Vec<String>;
+
+    /// Get total number of tracked logs
+    async fn count(&self) -> usize;
+}
 
 /// State manager for tracking last-seen index per CT log
 /// Persists state to TOML file for resume capability across restarts
@@ -120,6 +141,30 @@ impl Clone for StateManager {
             state: Arc::clone(&self.state),
             save_counter: Arc::clone(&self.save_counter),
         }
+    }
+}
+
+/// Implement StateBackend trait for StateManager
+#[async_trait]
+impl StateBackend for StateManager {
+    async fn get_last_index(&self, log_url: &str) -> Option<u64> {
+        self.get_last_index(log_url).await
+    }
+
+    async fn update_index(&self, log_url: &str, index: u64) {
+        self.update_index(log_url, index).await
+    }
+
+    async fn save(&self) -> Result<()> {
+        self.save().await
+    }
+
+    async fn get_tracked_logs(&self) -> Vec<String> {
+        self.get_tracked_logs().await
+    }
+
+    async fn count(&self) -> usize {
+        self.count().await
     }
 }
 

@@ -8,7 +8,7 @@ use tracing::{debug, error, info, warn};
 use super::client::CtLogClient;
 use super::health::LogHealthTracker;
 use crate::cert_parser::CertificateParser;
-use crate::state::StateManager;
+use crate::state::StateBackend;
 use crate::types::CertData;
 
 /// Configuration for single log monitor
@@ -23,7 +23,7 @@ pub struct LogMonitorConfig {
 pub struct LogMonitor {
     log_url: String,
     client: CtLogClient,
-    state_manager: Arc<StateManager>,
+    state_manager: Arc<dyn StateBackend>,
     health_tracker: Arc<LogHealthTracker>,
     config: LogMonitorConfig,
 }
@@ -32,7 +32,7 @@ impl LogMonitor {
     /// Create new log monitor
     pub fn new(
         log_url: String,
-        state_manager: Arc<StateManager>,
+        state_manager: Arc<dyn StateBackend>,
         health_tracker: Arc<LogHealthTracker>,
         config: LogMonitorConfig,
     ) -> Result<Self> {

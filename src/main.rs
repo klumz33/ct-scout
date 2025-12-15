@@ -285,20 +285,31 @@ async fn main() -> anyhow::Result<()> {
         None
     };
 
-    // Create state manager (TOML-based or DB-backed)
-    let state_manager: Arc<StateManager> = if config.database.enabled && db.is_some() {
-        // For DB mode, we need a different approach
-        // We'll create a TOML state manager as fallback for now
-        // TODO: Refactor to use trait-based state manager
-        Arc::new(
-            StateManager::new(PathBuf::from(&config.ct_logs.state_file))
-                .await?
-        )
-    } else {
-        Arc::new(
-            StateManager::new(PathBuf::from(&config.ct_logs.state_file))
-                .await?
-        )
+    // Create state manager based on configuration
+    let state_manager: Arc<dyn ct_scout::state::StateBackend> = match config.ct_logs.state_backend.as_str() {
+        "database" => {
+            if !config.database.enabled || db.is_none() {
+                anyhow::bail!(
+                    "state_backend is set to 'database' but database is not enabled. \
+                    Either enable database or use state_backend='file'"
+                );
+            }
+
+            tracing::info!("Using database for CT log state storage");
+            let db_state = ct_scout::database::DbStateManager::new(db.clone().unwrap());
+            Arc::new(db_state)
+        }
+        "file" => {
+            tracing::info!("Using file-based CT log state storage: {}", config.ct_logs.state_file);
+            let file_state = StateManager::new(PathBuf::from(&config.ct_logs.state_file)).await?;
+            Arc::new(file_state)
+        }
+        other => {
+            anyhow::bail!(
+                "Invalid state_backend '{}'. Must be 'file' or 'database'",
+                other
+            );
+        }
     };
     tracing::info!("State manager initialized");
 
