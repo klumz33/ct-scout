@@ -31,7 +31,7 @@ impl IntigritiAPI {
         Ok(Self {
             api_token,
             client,
-            base_url: "https://api.intigriti.com".to_string(),
+            base_url: "https://api.intigriti.com/external/researcher".to_string(),
         })
     }
 
@@ -39,7 +39,7 @@ impl IntigritiAPI {
     async fn fetch_programs_list(&self) -> Result<Vec<Value>> {
         info!("Fetching programs from Intigriti");
 
-        let url = format!("{}/core/researcher/programs", self.base_url);
+        let url = format!("{}/v1/programs", self.base_url);
 
         let response = self
             .client
@@ -75,13 +75,10 @@ impl IntigritiAPI {
     }
 
     /// Fetch program details including scope
-    async fn fetch_program_details(&self, company_id: &str, program_id: &str) -> Result<Vec<String>> {
-        debug!("Fetching scope for program: {}/{}", company_id, program_id);
+    async fn fetch_program_details(&self, program_id: &str) -> Result<Vec<String>> {
+        debug!("Fetching scope for program: {}", program_id);
 
-        let url = format!(
-            "{}/core/researcher/program/{}/{}",
-            self.base_url, company_id, program_id
-        );
+        let url = format!("{}/v1/programs/{}", self.base_url, program_id);
 
         let response = self
             .client
@@ -96,8 +93,7 @@ impl IntigritiAPI {
 
         if !response.status().is_success() {
             warn!(
-                "Failed to fetch scope for {}/{}: {}",
-                company_id,
+                "Failed to fetch scope for {}: {}",
                 program_id,
                 response.status()
             );
@@ -112,21 +108,38 @@ impl IntigritiAPI {
         let mut domains = Vec::new();
 
         // Extract domains from program scope
-        if let Some(domains_array) = json["domains"].as_array() {
-            for domain_obj in domains_array {
-                // Check if domain is in scope
-                let tier = domain_obj["tier"].as_i64().unwrap_or(0);
+        // API v1.0 structure: response.domains.content[] with each having endpoint, type, tier
+        if let Some(domains_obj) = json.get("domains") {
+            if let Some(content_array) = domains_obj.get("content").and_then(|v| v.as_array()) {
+                for domain_obj in content_array {
+                    // Check if domain is in scope via tier
+                    // tier is an object: { id: number, value: string }
+                    // tier.id: 1 = high, 2 = medium, 3 = low, 4 = out of scope
+                    let tier_id = domain_obj
+                        .get("tier")
+                        .and_then(|t| t.get("id"))
+                        .and_then(|id| id.as_i64())
+                        .unwrap_or(0);
 
-                // tier > 0 means in scope (1 = high, 2 = medium, 3 = low, 4 = out of scope)
-                if tier > 0 && tier < 4 {
-                    let domain_type = domain_obj["type"].as_str().unwrap_or("");
-                    let content = domain_obj["content"].as_str().unwrap_or("");
+                    // Only include in-scope domains (tier 1-3)
+                    if tier_id > 0 && tier_id < 4 {
+                        let domain_type = domain_obj
+                            .get("type")
+                            .and_then(|t| t.get("value"))
+                            .and_then(|v| v.as_str())
+                            .unwrap_or("");
 
-                    // Extract domains from url and wildcard types
-                    if (domain_type == "url" || domain_type == "wildcard") && !content.is_empty() {
-                        let domain = extract_domain(content);
-                        if !domain.is_empty() {
-                            domains.push(domain);
+                        let endpoint = domain_obj
+                            .get("endpoint")
+                            .and_then(|e| e.as_str())
+                            .unwrap_or("");
+
+                        // Extract domains from url and wildcard types
+                        if (domain_type == "url" || domain_type == "wildcard") && !endpoint.is_empty() {
+                            let domain = extract_domain(endpoint);
+                            if !domain.is_empty() {
+                                domains.push(domain);
+                            }
                         }
                     }
                 }
@@ -134,9 +147,8 @@ impl IntigritiAPI {
         }
 
         debug!(
-            "Found {} domains for program: {}/{}",
+            "Found {} domains for program: {}",
             domains.len(),
-            company_id,
             program_id
         );
         Ok(domains)
@@ -154,20 +166,19 @@ impl PlatformAPI for IntigritiAPI {
         let mut programs = Vec::new();
 
         for program_data in programs_list {
-            let company_id = program_data["companyId"].as_str().unwrap_or("").to_string();
-            let program_id = program_data["programId"].as_str().unwrap_or("").to_string();
+            let program_id = program_data["id"].as_str().unwrap_or("").to_string();
             let name = program_data["name"].as_str().unwrap_or("").to_string();
-            let handle = program_data["handle"].as_str().unwrap_or(&company_id).to_string();
+            let handle = program_data["handle"].as_str().unwrap_or("").to_string();
 
-            if company_id.is_empty() || program_id.is_empty() {
+            if program_id.is_empty() {
                 continue;
             }
 
             // Fetch scope for this program
-            let domains = match self.fetch_program_details(&company_id, &program_id).await {
+            let domains = match self.fetch_program_details(&program_id).await {
                 Ok(d) => d,
                 Err(e) => {
-                    warn!("Failed to fetch scope for {}/{}: {}", company_id, program_id, e);
+                    warn!("Failed to fetch scope for {}: {}", program_id, e);
                     continue;
                 }
             };
@@ -192,7 +203,7 @@ impl PlatformAPI for IntigritiAPI {
     }
 
     async fn test_connection(&self) -> Result<bool> {
-        let url = format!("{}/core/researcher/programs", self.base_url);
+        let url = format!("{}/v1/programs", self.base_url);
 
         let response = self
             .client
