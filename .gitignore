@@ -1,0 +1,18 @@
+# Rust build artifacts
+/target
+**/*.rs.bk
+*.pdb
+
+# State files (user-specific)
+*-state.toml
+ct-scout-state*.toml
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Test outputs
+/tmp/

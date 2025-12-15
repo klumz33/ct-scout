@@ -1,0 +1,78 @@
+# CT Log Monitoring Configuration
+[ct_logs]
+# Poll interval in seconds (default: 10)
+poll_interval_secs = 10
+
+# Number of entries to fetch per request (default: 256)
+batch_size = 256
+
+# CT log list URL (default: Google's list)
+log_list_url = "https://www.gstatic.com/ct/log_list/v3/all_logs_list.json"
+
+# State file for tracking progress (default: ct-scout-state.toml)
+state_file = "ms-ct-scout-state.toml"
+
+# Include all logs from the list - including rejected, etc.
+include_all_logs = false
+# Maximum number of logs to monitor concurrently (default: 100)
+max_concurrent_logs = 100
+
+# Optional: Specify custom CT logs instead of fetching from list
+# custom_logs = [
+#     "https://ct.googleapis.com/logs/argon2024/",
+#     "https://ct.cloudflare.com/logs/nimbus2024/"
+# ]
+
+[webhook]
+url = "https://blue-cosmos-69.webhook.cool"
+# secret = "enter_secret_here"      # optional, can be empty or ommited. If set, will create a X-Ctscout-Signature header with HMAC-SHA256 of the payload.
+timeout_secs = 5
+
+[logging]
+level = "warning"
+#level = "info"
+
+[watchlist]
+domains = [
+    "*.toolsforhumanity.com",
+    "*.spapp.zabka.pl",
+    "*.inspectorio.com",
+    "*.world.org",
+    "*.worldcoin.org",
+    "*.zabka.pl",
+    "*.socialdeal.nl"
+]
+
+hosts = [
+# nothing for now
+]
+
+ips = [
+#    "xxx.xxx.xxx.xxx"
+]
+
+cidrs = [
+]
+
+[[programs]]
+name = "Hilton"
+domains = [".hilton.com", ".hilton.io"]
+cidrs = ["203.79.37.2/29", "192.251.125.0/24", "192.251.124.0/24", "62.216.152.46/29", "192.251.123.0/24", "192.251.126.0/24", "82.196.42.196/28", "121.200.237.36/29", "167.187.0.0/16"]
+
+[[programs]]
+name = "IBM"
+domains = [".ibm.com"]
+cidrs = [ ]
+
+[[programs]]
+name = "Inspectorio"
+hosts = [
+    "rise.stg.inspectorio.com",
+    "rise-api.stg.inspectorio.com",
+    "report-html-sight.stg.inspectorio.com",
+    "id.stg.inspectorio.com",
+    "files-stg.inspectorio.com",
+    "docuflow.stg.inspectorio.com",
+    "app.stg.inspectorio.com",
+    "api.stg.inspectorio.com",
+]

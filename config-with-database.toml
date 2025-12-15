@@ -1,0 +1,46 @@
+# ct-scout configuration with PostgreSQL/Neon database integration
+
+[ct_logs]
+poll_interval_secs = 10
+batch_size = 256
+log_list_url = "https://www.gstatic.com/ct/log_list/v3/all_logs_list.json"
+state_file = "ct-scout-state.toml"  # Still used when database is disabled
+max_concurrent_logs = 100
+
+# Optional: Use custom logs instead of fetching from Google's list
+# custom_logs = [
+#     "https://ct.googleapis.com/logs/us1/argon2024/",
+#     "https://ct.cloudflare.com/logs/nimbus2024/"
+# ]
+
+[database]
+enabled = true
+# Neon PostgreSQL connection string format:
+# postgresql://username:password@ep-xxx-xxx.us-east-2.aws.neon.tech/dbname?sslmode=require
+url = "postgresql://localhost/ctscout"
+max_connections = 20
+
+[logging]
+level = "info"
+
+[watchlist]
+domains = ["*.ibm.com", "*.google.com", "*.amazon.com", "*.microsoft.com"]
+hosts = []
+ips = []
+cidrs = []
+
+[[programs]]
+name = "IBM Bug Bounty"
+domains = [".ibm.com", ".bluemix.net", ".softlayer.com"]
+cidrs = []
+
+[[programs]]
+name = "Google VRP"
+domains = [".google.com", ".youtube.com", ".gmail.com"]
+cidrs = []
+
+# Optional webhook for real-time notifications
+# [webhook]
+# url = "https://your-webhook-endpoint.com/ct-matches"
+# secret = "your-webhook-secret"
+# timeout_secs = 5

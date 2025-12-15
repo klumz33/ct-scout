@@ -1,0 +1,48 @@
+[certstream]
+url = "ws://127.0.0.1:4000/full-stream"
+reconnect_delay_secs = 5
+
+[webhook]
+url = "https://example.com/webhook"
+secret = "test_secret_key"
+timeout_secs = 10
+
+[logging]
+level = "info"
+
+[watchlist]
+domains = [
+    "*.ibm.com",
+    ".hilton.com",
+    "*.test.com",
+]
+
+hosts = [
+    "exact.example.com",
+    "api.service.com",
+]
+
+ips = [
+    "192.168.1.100",
+    "10.0.0.50",
+]
+
+cidrs = [
+    "172.16.0.0/12",
+    "192.251.125.0/24",
+]
+
+[[programs]]
+name = "IBM"
+domains = [".ibm.com"]
+cidrs = []
+
+[[programs]]
+name = "Hilton"
+domains = [".hilton.com", ".hilton.io"]
+cidrs = ["192.251.125.0/24", "203.79.37.0/29"]
+
+[[programs]]
+name = "Test Program"
+domains = [".test.com"]
+cidrs = ["172.16.0.0/16"]
