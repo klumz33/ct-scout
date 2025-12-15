@@ -88,11 +88,20 @@ impl HackerOneAPI {
             .context("Failed to fetch program details")?;
 
         if !response.status().is_success() {
-            warn!(
-                "Failed to fetch scope for {}: {}",
-                handle,
-                response.status()
-            );
+            let status = response.status();
+            // 403 Forbidden is expected for private/unenrolled programs
+            if status.as_u16() == 403 {
+                debug!(
+                    "Program {} is private or not accessible (403 Forbidden)",
+                    handle
+                );
+            } else {
+                warn!(
+                    "Failed to fetch scope for {}: {}",
+                    handle,
+                    status
+                );
+            }
             return Ok(Vec::new());
         }
 

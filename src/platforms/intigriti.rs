@@ -92,11 +92,17 @@ impl IntigritiAPI {
             .context("Failed to fetch program details")?;
 
         if !response.status().is_success() {
+            let status = response.status();
+            let error_body = response.text().await.unwrap_or_default();
+
+            // Log the full error with response body for debugging
             warn!(
-                "Failed to fetch scope for {}: {}",
+                "Failed to fetch scope for program {}: HTTP {} - {}",
                 program_id,
-                response.status()
+                status,
+                if error_body.is_empty() { "no error message" } else { &error_body }
             );
+
             return Ok(Vec::new());
         }
 
