@@ -250,7 +250,13 @@ async fn main() -> anyhow::Result<()> {
             loop {
                 tokio::time::sleep(Duration::from_secs(interval)).await;
                 let msg = stats_clone.format_stats();
-                progress_clone.set_message(msg);
+
+                // If progress indicator is enabled, use it; otherwise print directly to stderr
+                if progress_clone.is_enabled() {
+                    progress_clone.set_message(msg);
+                } else {
+                    eprintln!("{}", msg);
+                }
             }
         });
     }
