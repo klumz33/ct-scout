@@ -1,7 +1,11 @@
 [package]
 name = "ct-scout"
-version = "0.1.0"
+version = "2.0.0"
 edition = "2024"
+authors = ["ct-scout contributors"]
+description = "High-performance Certificate Transparency log monitor for bug bounty hunting"
+license = "MIT"
+repository = "https://github.com/klumz33/ct-scout"
 
 [lib]
 name = "ct_scout"
