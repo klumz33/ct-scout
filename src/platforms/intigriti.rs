@@ -204,7 +204,18 @@ impl PlatformAPI for IntigritiAPI {
             .send()
             .await?;
 
-        Ok(response.status().is_success())
+        if !response.status().is_success() {
+            let status = response.status();
+            let body = response.text().await.unwrap_or_default();
+            warn!(
+                "Intigriti API connection failed: HTTP {} - {}",
+                status,
+                if body.is_empty() { "no error message" } else { &body }
+            );
+            return Ok(false);
+        }
+
+        Ok(true)
     }
 }
 
