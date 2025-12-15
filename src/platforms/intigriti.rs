@@ -95,13 +95,29 @@ impl IntigritiAPI {
             let status = response.status();
             let error_body = response.text().await.unwrap_or_default();
 
-            // Log the full error with response body for debugging
-            warn!(
-                "Failed to fetch scope for program {}: HTTP {} - {}",
-                program_id,
-                status,
-                if error_body.is_empty() { "no error message" } else { &error_body }
-            );
+            // Parse error code if it's JSON
+            let error_code = if let Ok(json) = serde_json::from_str::<serde_json::Value>(&error_body) {
+                json["code"].as_str().unwrap_or("UNKNOWN").to_string()
+            } else {
+                "UNKNOWN".to_string()
+            };
+
+            // FORBID001 is expected for programs you're not enrolled in or restricted programs
+            // Only log at debug level to reduce noise
+            if status.as_u16() == 403 && error_code == "FORBID001" {
+                debug!(
+                    "Program {} is restricted or not accessible (403 FORBID001)",
+                    program_id
+                );
+            } else {
+                // Other errors are unexpected and should be warned
+                warn!(
+                    "Failed to fetch scope for program {}: HTTP {} - {}",
+                    program_id,
+                    status,
+                    if error_body.is_empty() { "no error message" } else { &error_body }
+                );
+            }
 
             return Ok(Vec::new());
         }
@@ -169,7 +185,10 @@ impl PlatformAPI for IntigritiAPI {
 
     async fn fetch_programs(&self) -> Result<Vec<Program>> {
         let programs_list = self.fetch_programs_list().await?;
+        let total_programs = programs_list.len();
         let mut programs = Vec::new();
+        let mut restricted_count = 0;
+        let mut empty_scope_count = 0;
 
         for program_data in programs_list {
             let program_id = program_data["id"].as_str().unwrap_or("").to_string();
@@ -185,6 +204,7 @@ impl PlatformAPI for IntigritiAPI {
                 Ok(d) => d,
                 Err(e) => {
                     warn!("Failed to fetch scope for {}: {}", program_id, e);
+                    restricted_count += 1;
                     continue;
                 }
             };
@@ -198,12 +218,17 @@ impl PlatformAPI for IntigritiAPI {
                     hosts: Vec::new(), // Intigriti API doesn't separate hosts
                     in_scope: true,
                 });
+            } else {
+                empty_scope_count += 1;
             }
         }
 
         info!(
-            "Successfully fetched {} programs from Intigriti",
-            programs.len()
+            "Intigriti sync: {} total programs, {} accessible with domains, {} restricted/forbidden, {} with empty scope",
+            total_programs,
+            programs.len(),
+            restricted_count,
+            empty_scope_count
         );
         Ok(programs)
     }

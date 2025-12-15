@@ -89,13 +89,16 @@ impl HackerOneAPI {
 
         if !response.status().is_success() {
             let status = response.status();
+
             // 403 Forbidden is expected for private/unenrolled programs
+            // Only log at debug level to reduce noise
             if status.as_u16() == 403 {
                 debug!(
-                    "Program {} is private or not accessible (403 Forbidden)",
+                    "Program {} is restricted or not accessible (403 Forbidden)",
                     handle
                 );
             } else {
+                // Other errors are unexpected and should be warned
                 warn!(
                     "Failed to fetch scope for {}: {}",
                     handle,
