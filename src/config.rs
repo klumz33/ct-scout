@@ -1,6 +1,7 @@
 // src/config.rs
 
 use serde::Deserialize;
+use std::fmt;
 use std::fs;
 use std::path::Path;
 
@@ -45,11 +46,21 @@ fn default_include_readonly_logs() -> bool { false }
 fn default_include_all_logs() -> bool { false }
 fn default_include_pending() -> bool { false }
 
-#[derive(Debug, Deserialize, Clone)]
+#[derive(Deserialize, Clone)]
 pub struct WebhookConfig {
     pub url: String,
     pub secret: Option<String>,
     pub timeout_secs: Option<u64>,
+}
+
+impl fmt::Debug for WebhookConfig {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("WebhookConfig")
+            .field("url", &self.url)
+            .field("secret", &self.secret.as_ref().map(|_| "***REDACTED***"))
+            .field("timeout_secs", &self.timeout_secs)
+            .finish()
+    }
 }
 
 #[derive(Debug, Deserialize, Default)]
@@ -78,13 +89,43 @@ pub struct LoggingConfig {
     pub level: String,
 }
 
-#[derive(Debug, Deserialize, Clone)]
+#[derive(Deserialize, Clone)]
 pub struct DatabaseConfig {
     pub enabled: bool,
     #[serde(default = "default_database_url")]
     pub url: String,
     #[serde(default = "default_max_connections")]
     pub max_connections: u32,
+}
+
+impl fmt::Debug for DatabaseConfig {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        // Redact password from database URL
+        let redacted_url = if self.url.contains('@') {
+            // Format: postgresql://user:password@host/db
+            let parts: Vec<&str> = self.url.split('@').collect();
+            if parts.len() >= 2 {
+                let before_at = parts[0];
+                let after_at = parts[1..].join("@");
+                // Find the password part (between : and @)
+                if let Some(colon_pos) = before_at.rfind(':') {
+                    format!("{}:***REDACTED***@{}", &before_at[..colon_pos], after_at)
+                } else {
+                    self.url.clone()
+                }
+            } else {
+                self.url.clone()
+            }
+        } else {
+            self.url.clone()
+        };
+
+        f.debug_struct("DatabaseConfig")
+            .field("enabled", &self.enabled)
+            .field("url", &redacted_url)
+            .field("max_connections", &self.max_connections)
+            .finish()
+    }
 }
 
 fn default_database_url() -> String {
@@ -115,17 +156,36 @@ pub struct PlatformsConfig {
     pub sync_interval_hours: u64,
 }
 
-#[derive(Debug, Deserialize, Clone)]
+#[derive(Deserialize, Clone)]
 pub struct HackerOneConfig {
     pub enabled: bool,
     pub username: String,
     pub api_token: String,
 }
 
-#[derive(Debug, Deserialize, Clone)]
+impl fmt::Debug for HackerOneConfig {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("HackerOneConfig")
+            .field("enabled", &self.enabled)
+            .field("username", &self.username)
+            .field("api_token", &"***REDACTED***")
+            .finish()
+    }
+}
+
+#[derive(Deserialize, Clone)]
 pub struct IntigritiConfig {
     pub enabled: bool,
     pub api_token: String,
+}
+
+impl fmt::Debug for IntigritiConfig {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("IntigritiConfig")
+            .field("enabled", &self.enabled)
+            .field("api_token", &"***REDACTED***")
+            .finish()
+    }
 }
 
 fn default_sync_interval_hours() -> u64 { 6 }
