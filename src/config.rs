@@ -154,6 +154,8 @@ pub struct PlatformsConfig {
     pub intigriti: Option<IntigritiConfig>,
     #[serde(default = "default_sync_interval_hours")]
     pub sync_interval_hours: u64,
+    #[serde(default = "default_max_programs_per_platform")]
+    pub max_programs_per_platform: usize,
 }
 
 #[derive(Deserialize, Clone)]
@@ -161,6 +163,10 @@ pub struct HackerOneConfig {
     pub enabled: bool,
     pub username: String,
     pub api_token: String,
+    #[serde(default = "default_h1_filter")]
+    pub filter: String,  // "bookmarked" or "all"
+    #[serde(default)]
+    pub max_programs: Option<usize>,  // Override global max_programs_per_platform
 }
 
 impl fmt::Debug for HackerOneConfig {
@@ -169,6 +175,8 @@ impl fmt::Debug for HackerOneConfig {
             .field("enabled", &self.enabled)
             .field("username", &self.username)
             .field("api_token", &"***REDACTED***")
+            .field("filter", &self.filter)
+            .field("max_programs", &self.max_programs)
             .finish()
     }
 }
@@ -177,6 +185,10 @@ impl fmt::Debug for HackerOneConfig {
 pub struct IntigritiConfig {
     pub enabled: bool,
     pub api_token: String,
+    #[serde(default = "default_intigriti_filter")]
+    pub filter: String,  // "following" or "all"
+    #[serde(default)]
+    pub max_programs: Option<usize>,  // Override global max_programs_per_platform
 }
 
 impl fmt::Debug for IntigritiConfig {
@@ -184,11 +196,16 @@ impl fmt::Debug for IntigritiConfig {
         f.debug_struct("IntigritiConfig")
             .field("enabled", &self.enabled)
             .field("api_token", &"***REDACTED***")
+            .field("filter", &self.filter)
+            .field("max_programs", &self.max_programs)
             .finish()
     }
 }
 
 fn default_sync_interval_hours() -> u64 { 6 }
+fn default_max_programs_per_platform() -> usize { 100 }
+fn default_h1_filter() -> String { "bookmarked".to_string() }
+fn default_intigriti_filter() -> String { "following".to_string() }
 
 impl Default for PlatformsConfig {
     fn default() -> Self {
@@ -196,6 +213,7 @@ impl Default for PlatformsConfig {
             hackerone: None,
             intigriti: None,
             sync_interval_hours: default_sync_interval_hours(),
+            max_programs_per_platform: default_max_programs_per_platform(),
         }
     }
 }

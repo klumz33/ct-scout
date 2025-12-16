@@ -92,6 +92,10 @@ pub struct Cli {
     /// Export current scope (config + platforms) to TOML format and exit
     #[arg(long = "export-scope")]
     pub export_scope: bool,
+
+    /// Dry-run platform sync: show what programs would be synced without actually syncing
+    #[arg(long = "dry-run-sync")]
+    pub dry_run_sync: bool,
 }
 
 impl Cli {

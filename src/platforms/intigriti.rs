@@ -7,7 +7,7 @@ use reqwest::header::{HeaderMap, HeaderValue, ACCEPT, AUTHORIZATION};
 use serde_json::Value;
 use tracing::{debug, info, warn};
 
-use super::{extract_domain, PlatformAPI, Program};
+use super::{extract_domain, FetchOptions, PlatformAPI, Program};
 
 /// Intigriti API client
 pub struct IntigritiAPI {
@@ -35,43 +35,85 @@ impl IntigritiAPI {
         })
     }
 
-    /// Fetch programs list
-    async fn fetch_programs_list(&self) -> Result<Vec<Value>> {
-        info!("Fetching programs from Intigriti");
+    /// Fetch programs list with pagination and filtering
+    async fn fetch_programs_list_paginated(&self, filter: &str, max_programs: usize) -> Result<Vec<Value>> {
+        info!("Fetching programs from Intigriti (filter: {}, max: {})", filter, max_programs);
 
-        let url = format!("{}/v1/programs", self.base_url);
+        let mut all_programs = Vec::new();
+        let mut offset = 0;
+        let limit = 500; // Maximum allowed by Intigriti API
 
-        let response = self
-            .client
-            .get(&url)
-            .header(
-                AUTHORIZATION,
-                format!("Bearer {}", self.api_token),
-            )
-            .send()
-            .await
-            .context("Failed to send request to Intigriti API")?;
-
-        if !response.status().is_success() {
-            anyhow::bail!(
-                "Intigriti API returned error: {} - {}",
-                response.status(),
-                response.text().await.unwrap_or_default()
+        loop {
+            // Build URL with pagination and following filter
+            let mut url = format!(
+                "{}/v1/programs?limit={}&offset={}",
+                self.base_url, limit, offset
             );
+
+            // Add following filter if requested
+            if filter == "following" {
+                url.push_str("&following=true");
+            }
+
+            debug!("Fetching Intigriti offset {} (limit: {}, filter: {})", offset, limit, filter);
+
+            let response = self
+                .client
+                .get(&url)
+                .header(
+                    AUTHORIZATION,
+                    format!("Bearer {}", self.api_token),
+                )
+                .send()
+                .await
+                .context("Failed to send request to Intigriti API")?;
+
+            if !response.status().is_success() {
+                anyhow::bail!(
+                    "Intigriti API returned error: {} - {}",
+                    response.status(),
+                    response.text().await.unwrap_or_default()
+                );
+            }
+
+            let json: Value = response
+                .json()
+                .await
+                .context("Failed to parse Intigriti API response")?;
+
+            let programs = json["records"]
+                .as_array()
+                .context("Invalid response format from Intigriti")?
+                .clone();
+
+            let max_count = json["maxCount"].as_u64().unwrap_or(0) as usize;
+
+            if programs.is_empty() {
+                debug!("No more programs at offset {}", offset);
+                break;
+            }
+
+            debug!("Found {} programs at offset {} (total available: {})", programs.len(), offset, max_count);
+
+            for program in programs {
+                all_programs.push(program);
+                if all_programs.len() >= max_programs {
+                    info!("Reached max_programs limit of {}", max_programs);
+                    return Ok(all_programs);
+                }
+            }
+
+            // Check if we've fetched all available programs
+            if all_programs.len() >= max_count {
+                debug!("Fetched all {} available programs", max_count);
+                break;
+            }
+
+            offset += limit;
         }
 
-        let json: Value = response
-            .json()
-            .await
-            .context("Failed to parse Intigriti API response")?;
-
-        let programs = json["records"]
-            .as_array()
-            .context("Invalid response format from Intigriti")?
-            .clone();
-
-        info!("Found {} programs on Intigriti", programs.len());
-        Ok(programs)
+        info!("Found {} total programs on Intigriti (filter: {})", all_programs.len(), filter);
+        Ok(all_programs)
     }
 
     /// Fetch program details including scope
@@ -183,18 +225,36 @@ impl PlatformAPI for IntigritiAPI {
         "Intigriti"
     }
 
-    async fn fetch_programs(&self) -> Result<Vec<Program>> {
-        let programs_list = self.fetch_programs_list().await?;
+    async fn fetch_programs_with_options(&self, options: FetchOptions) -> Result<Vec<Program>> {
+        let programs_list = self.fetch_programs_list_paginated(&options.filter, options.max_programs).await?;
         let total_programs = programs_list.len();
         let mut programs = Vec::new();
         let mut restricted_count = 0;
         let mut empty_scope_count = 0;
 
         info!(
-            "Intigriti API returns all {} public programs on the platform (not just enrolled programs)",
-            total_programs
+            "Intigriti: {} programs to process (filter: {})",
+            total_programs, options.filter
         );
-        info!("Attempting to fetch scope details for each program...");
+
+        if options.dry_run {
+            info!("DRY-RUN MODE: Showing programs that would be synced");
+            info!("─────────────────────────────────────────────────────────────");
+
+            for program_data in &programs_list {
+                let name = program_data["name"].as_str().unwrap_or("").to_string();
+                let handle = program_data["handle"].as_str().unwrap_or("").to_string();
+                let following = program_data["following"].as_bool().unwrap_or(false);
+
+                info!("Would sync: '{}' ({}) [following: {}]", name, handle, following);
+            }
+
+            info!("─────────────────────────────────────────────────────────────");
+            info!("DRY-RUN: Would attempt to fetch scope for {} programs", total_programs);
+            return Ok(Vec::new());
+        }
+
+        info!("Fetching scope details for each program...");
         info!("Note: 403 FORBID001 errors are expected for programs you're not enrolled in or that are restricted");
 
         for program_data in programs_list {

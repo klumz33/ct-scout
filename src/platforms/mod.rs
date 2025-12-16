@@ -34,6 +34,19 @@ pub struct Program {
     pub in_scope: bool,
 }
 
+/// Options for fetching programs from a platform
+#[derive(Debug, Clone)]
+pub struct FetchOptions {
+    /// Filter to apply (e.g., "bookmarked", "following", "all")
+    pub filter: String,
+
+    /// Maximum number of programs to fetch
+    pub max_programs: usize,
+
+    /// If true, only log what would be fetched without actually fetching scope details
+    pub dry_run: bool,
+}
+
 /// Platform API trait for fetching program data
 #[async_trait]
 pub trait PlatformAPI: Send + Sync {
@@ -41,7 +54,16 @@ pub trait PlatformAPI: Send + Sync {
     fn name(&self) -> &str;
 
     /// Fetch all enrolled programs with their scopes
-    async fn fetch_programs(&self) -> Result<Vec<Program>>;
+    async fn fetch_programs(&self) -> Result<Vec<Program>> {
+        self.fetch_programs_with_options(FetchOptions {
+            filter: "all".to_string(),
+            max_programs: 100,
+            dry_run: false,
+        }).await
+    }
+
+    /// Fetch programs with specific options
+    async fn fetch_programs_with_options(&self, options: FetchOptions) -> Result<Vec<Program>>;
 
     /// Check if API credentials are valid
     async fn test_connection(&self) -> Result<bool>;

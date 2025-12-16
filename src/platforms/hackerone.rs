@@ -7,7 +7,7 @@ use reqwest::header::{HeaderMap, HeaderValue, ACCEPT};
 use serde_json::Value;
 use tracing::{debug, info, warn};
 
-use super::{extract_domain, PlatformAPI, Program};
+use super::{extract_domain, FetchOptions, PlatformAPI, Program};
 
 /// HackerOne API client
 pub struct HackerOneAPI {
@@ -37,40 +37,89 @@ impl HackerOneAPI {
         })
     }
 
-    /// Fetch programs list
-    async fn fetch_programs_list(&self) -> Result<Vec<Value>> {
-        info!("Fetching programs from HackerOne");
+    /// Fetch programs list with pagination
+    async fn fetch_programs_list_paginated(&self, filter: &str, max_programs: usize) -> Result<Vec<Value>> {
+        info!("Fetching programs from HackerOne (filter: {}, max: {})", filter, max_programs);
 
-        let url = format!("{}/v1/hackers/programs", self.base_url);
+        let mut all_programs = Vec::new();
+        let mut page = 1;
+        let page_size = 100; // Maximum allowed by HackerOne API
 
-        let response = self
-            .client
-            .get(&url)
-            .basic_auth(&self.username, Some(&self.api_token))
-            .send()
-            .await
-            .context("Failed to send request to HackerOne API")?;
-
-        if !response.status().is_success() {
-            anyhow::bail!(
-                "HackerOne API returned error: {} - {}",
-                response.status(),
-                response.text().await.unwrap_or_default()
+        loop {
+            let url = format!(
+                "{}/v1/hackers/programs?page[number]={}&page[size]={}",
+                self.base_url, page, page_size
             );
+
+            debug!("Fetching HackerOne page {} (size: {})", page, page_size);
+
+            let response = self
+                .client
+                .get(&url)
+                .basic_auth(&self.username, Some(&self.api_token))
+                .send()
+                .await
+                .context("Failed to send request to HackerOne API")?;
+
+            if !response.status().is_success() {
+                anyhow::bail!(
+                    "HackerOne API returned error: {} - {}",
+                    response.status(),
+                    response.text().await.unwrap_or_default()
+                );
+            }
+
+            let json: Value = response
+                .json()
+                .await
+                .context("Failed to parse HackerOne API response")?;
+
+            let programs = json["data"]
+                .as_array()
+                .context("Invalid response format from HackerOne")?
+                .clone();
+
+            if programs.is_empty() {
+                debug!("No more programs on page {}", page);
+                break;
+            }
+
+            debug!("Found {} programs on page {}", programs.len(), page);
+
+            // Apply client-side filtering for bookmarked if needed
+            if filter == "bookmarked" {
+                for program in programs {
+                    if program["attributes"]["bookmarked"].as_bool().unwrap_or(false) {
+                        all_programs.push(program);
+                        if all_programs.len() >= max_programs {
+                            info!("Reached max_programs limit of {}", max_programs);
+                            return Ok(all_programs);
+                        }
+                    }
+                }
+            } else {
+                // "all" filter - take everything
+                for program in programs {
+                    all_programs.push(program);
+                    if all_programs.len() >= max_programs {
+                        info!("Reached max_programs limit of {}", max_programs);
+                        return Ok(all_programs);
+                    }
+                }
+            }
+
+            // Check if there's a next page
+            let has_next = json["links"]["next"].as_str().is_some();
+            if !has_next {
+                debug!("No more pages available");
+                break;
+            }
+
+            page += 1;
         }
 
-        let json: Value = response
-            .json()
-            .await
-            .context("Failed to parse HackerOne API response")?;
-
-        let programs = json["data"]
-            .as_array()
-            .context("Invalid response format from HackerOne")?
-            .clone();
-
-        info!("Found {} programs on HackerOne", programs.len());
-        Ok(programs)
+        info!("Found {} total programs on HackerOne (filter: {})", all_programs.len(), filter);
+        Ok(all_programs)
     }
 
     /// Fetch structured scope for a program
@@ -157,17 +206,36 @@ impl PlatformAPI for HackerOneAPI {
         "HackerOne"
     }
 
-    async fn fetch_programs(&self) -> Result<Vec<Program>> {
-        let programs_list = self.fetch_programs_list().await?;
+    async fn fetch_programs_with_options(&self, options: FetchOptions) -> Result<Vec<Program>> {
+        let programs_list = self.fetch_programs_list_paginated(&options.filter, options.max_programs).await?;
         let total_programs = programs_list.len();
         let mut programs = Vec::new();
         let mut restricted_count = 0;
         let mut empty_scope_count = 0;
 
         info!(
-            "HackerOne API returned {} programs (programs you're invited to or public programs)",
-            total_programs
+            "HackerOne: {} programs to process (filter: {})",
+            total_programs, options.filter
         );
+
+        if options.dry_run {
+            info!("DRY-RUN MODE: Showing programs that would be synced");
+            info!("─────────────────────────────────────────────────────────────");
+
+            for program_data in &programs_list {
+                let attributes = &program_data["attributes"];
+                let handle = attributes["handle"].as_str().unwrap_or("").to_string();
+                let name = attributes["name"].as_str().unwrap_or("").to_string();
+                let bookmarked = attributes["bookmarked"].as_bool().unwrap_or(false);
+
+                info!("Would sync: '{}' (@{}) [bookmarked: {}]", name, handle, bookmarked);
+            }
+
+            info!("─────────────────────────────────────────────────────────────");
+            info!("DRY-RUN: Would attempt to fetch scope for {} programs", total_programs);
+            return Ok(Vec::new());
+        }
+
         info!("Fetching structured scope for each program...");
         info!("Note: 403 Forbidden errors are expected for private programs you're not enrolled in");
 

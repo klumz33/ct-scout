@@ -7,7 +7,7 @@ use ct_scout::database::{DatabaseBackend, PostgresBackend};
 use ct_scout::dedupe::Dedupe;
 use ct_scout::filter::RootDomainFilter;
 use ct_scout::output::{csv, human, json, silent, webhook, OutputManager};
-use ct_scout::platforms::{HackerOneAPI, IntigritiAPI, PlatformAPI};
+use ct_scout::platforms::{FetchOptions, HackerOneAPI, IntigritiAPI, PlatformAPI};
 use ct_scout::progress::ProgressIndicator;
 use ct_scout::state::StateManager;
 use ct_scout::stats::StatsCollector;
@@ -130,9 +130,53 @@ async fn main() -> anyhow::Result<()> {
             }
         }
 
+        // Determine fetch options for each platform
+        let h1_options = if let Some(h1_config) = &config.platforms.hackerone {
+            if h1_config.enabled {
+                Some(FetchOptions {
+                    filter: h1_config.filter.clone(),
+                    max_programs: h1_config.max_programs.unwrap_or(config.platforms.max_programs_per_platform),
+                    dry_run: cli.dry_run_sync,
+                })
+            } else {
+                None
+            }
+        } else {
+            None
+        };
+
+        let intigriti_options = if let Some(intigriti_config) = &config.platforms.intigriti {
+            if intigriti_config.enabled {
+                Some(FetchOptions {
+                    filter: intigriti_config.filter.clone(),
+                    max_programs: intigriti_config.max_programs.unwrap_or(config.platforms.max_programs_per_platform),
+                    dry_run: cli.dry_run_sync,
+                })
+            } else {
+                None
+            }
+        } else {
+            None
+        };
+
         // Sync programs from platforms
         for platform in platforms {
-            match platform.fetch_programs().await {
+            // Determine which options to use for this platform
+            let options = if platform.name() == "HackerOne" {
+                h1_options.clone()
+            } else if platform.name() == "Intigriti" {
+                intigriti_options.clone()
+            } else {
+                None
+            };
+
+            let options = options.unwrap_or(FetchOptions {
+                filter: "all".to_string(),
+                max_programs: config.platforms.max_programs_per_platform,
+                dry_run: cli.dry_run_sync,
+            });
+
+            match platform.fetch_programs_with_options(options).await {
                 Ok(programs) => {
                     tracing::info!(
                         "Fetched {} programs from {}",
@@ -163,6 +207,12 @@ async fn main() -> anyhow::Result<()> {
             "Platform sync complete. Total programs: {}",
             watchlist.programs().len()
         );
+
+        // If dry-run mode, exit after showing what would be synced
+        if cli.dry_run_sync {
+            tracing::info!("Dry-run complete. Exiting.");
+            return Ok(());
+        }
     }
 
     // Handle --export-scope flag
