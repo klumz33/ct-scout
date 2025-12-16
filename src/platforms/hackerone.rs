@@ -164,6 +164,9 @@ impl HackerOneAPI {
 
         let mut domains = Vec::new();
 
+        let mut other_type_count = 0;
+        let mut url_wildcard_count = 0;
+
         if let Some(relationships) = json["data"]["relationships"].as_object() {
             if let Some(structured_scopes) = relationships.get("structured_scopes") {
                 if let Some(scopes) = structured_scopes["data"].as_array() {
@@ -180,19 +183,38 @@ impl HackerOneAPI {
                                 .as_str()
                                 .unwrap_or("");
 
-                            // Extract domains from URL and WILDCARD types
-                            if (asset_type == "URL" || asset_type == "WILDCARD")
-                                && !asset_identifier.is_empty()
-                            {
-                                let domain = extract_domain(asset_identifier);
-                                if !domain.is_empty() {
-                                    domains.push(domain);
+                            // Extract domains from URL, WILDCARD, and DOMAIN types
+                            if asset_type == "URL" || asset_type == "WILDCARD" || asset_type == "DOMAIN" {
+                                url_wildcard_count += 1;
+                                if !asset_identifier.is_empty() {
+                                    let domain = extract_domain(asset_identifier);
+                                    if !domain.is_empty() {
+                                        domains.push(domain);
+                                    }
                                 }
+                            } else if asset_type == "CIDR" {
+                                // CIDRs are handled separately - not included in domains list
+                                // They would need to be added to the program's cidrs field
+                                debug!("Found CIDR in scope for {}: {}", handle, asset_identifier);
+                            } else if asset_type == "OTHER" || asset_type == "DOWNLOADABLE_EXECUTABLES"
+                                   || asset_type == "SOURCE_CODE" || asset_type == "HARDWARE" {
+                                // These types don't contain structured domain data
+                                // Domains may be in the instruction field as free text
+                                other_type_count += 1;
                             }
                         }
                     }
                 }
             }
+        }
+
+        // Log info about what we found
+        if other_type_count > 0 && url_wildcard_count == 0 {
+            debug!(
+                "Program {} has {} OTHER/non-domain scope items (no URL/WILDCARD items). \
+                Domains may be in text instructions - consider adding manually to config.",
+                handle, other_type_count
+            );
         }
 
         debug!("Found {} domains for program: {}", domains.len(), handle);
