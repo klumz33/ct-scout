@@ -1,0 +1,192 @@
+[2m2025-12-16T09:40:08.879119Z[0m [32m INFO[0m [2mct_scout[0m[2m:[0m Starting ct-scout...
+[2m2025-12-16T09:40:08.879187Z[0m [32m INFO[0m [2mct_scout[0m[2m:[0m Loaded watchlist: 7 domains, 0 hosts, 0 IPs, 0 CIDRs
+[2m2025-12-16T09:40:08.879193Z[0m [32m INFO[0m [2mct_scout[0m[2m:[0m Platform API integration enabled, syncing watchlist...
+[2m2025-12-16T09:40:08.879197Z[0m [32m INFO[0m [2mct_scout[0m[2m:[0m Initializing HackerOne API integration
+[2m2025-12-16T09:40:09.435381Z[0m [32m INFO[0m [2mct_scout[0m[2m:[0m HackerOne API connection successful
+[2m2025-12-16T09:40:09.435478Z[0m [32m INFO[0m [2mct_scout[0m[2m:[0m Initializing Intigriti API integration
+[2m2025-12-16T09:40:09.659281Z[0m [32m INFO[0m [2mct_scout[0m[2m:[0m Intigriti API connection successful
+[2m2025-12-16T09:40:09.659368Z[0m [32m INFO[0m [2mct_scout::platforms::hackerone[0m[2m:[0m Fetching programs from HackerOne (filter: bookmarked, max: 50)
+[2m2025-12-16T09:40:17.292458Z[0m [32m INFO[0m [2mct_scout::platforms::hackerone[0m[2m:[0m Found 17 total programs on HackerOne (filter: bookmarked)
+[2m2025-12-16T09:40:17.292535Z[0m [32m INFO[0m [2mct_scout::platforms::hackerone[0m[2m:[0m HackerOne: 17 programs to process (filter: bookmarked)
+[2m2025-12-16T09:40:17.292544Z[0m [32m INFO[0m [2mct_scout::platforms::hackerone[0m[2m:[0m Fetching structured scope for each program...
+[2m2025-12-16T09:40:17.292548Z[0m [32m INFO[0m [2mct_scout::platforms::hackerone[0m[2m:[0m Note: 403 Forbidden errors are expected for private programs you're not enrolled in
+[2m2025-12-16T09:40:17.872789Z[0m [32m INFO[0m [2mct_scout::platforms::hackerone[0m[2m:[0m ✓ Program 'Flat' (@flat_io): 2 domains in scope
+[2m2025-12-16T09:40:18.203243Z[0m [32m INFO[0m [2mct_scout::platforms::hackerone[0m[2m:[0m ✓ Program 'Remitly' (@remitly): 22 domains in scope
+[2m2025-12-16T09:40:18.837362Z[0m [32m INFO[0m [2mct_scout::platforms::hackerone[0m[2m:[0m ✓ Program 'Inspectorio' (@inspectorio): 8 domains in scope
+[2m2025-12-16T09:40:19.207747Z[0m [32m INFO[0m [2mct_scout::platforms::hackerone[0m[2m:[0m ✓ Program 'Remote | Vulnerability Disclosure Program' (@remote): 2 domains in scope
+[2m2025-12-16T09:40:19.555995Z[0m [32m INFO[0m [2mct_scout::platforms::hackerone[0m[2m:[0m ✓ Program 'Hilton' (@hilton): 8 domains in scope
+[2m2025-12-16T09:40:19.858769Z[0m [32m INFO[0m [2mct_scout::platforms::hackerone[0m[2m:[0m ✓ Program 'Alohi' (@alohi): 3 domains in scope
+[2m2025-12-16T09:40:20.155765Z[0m [32m INFO[0m [2mct_scout::platforms::hackerone[0m[2m:[0m ✓ Program 'City of Los Angeles' (@city_of_los_angeles_vdp): 2 domains in scope
+[2m2025-12-16T09:40:20.469523Z[0m [32m INFO[0m [2mct_scout::platforms::hackerone[0m[2m:[0m ✓ Program 'Mergify' (@mergify): 2 domains in scope
+[2m2025-12-16T09:40:20.793989Z[0m [32m INFO[0m [2mct_scout::platforms::hackerone[0m[2m:[0m ✓ Program 'NiceHash' (@nicehash): 2 domains in scope
+[2m2025-12-16T09:40:21.101139Z[0m [32m INFO[0m [2mct_scout::platforms::hackerone[0m[2m:[0m ✓ Program 'Tools for Humanity' (@toolsforhumanity): 11 domains in scope
+[2m2025-12-16T09:40:21.444542Z[0m [32m INFO[0m [2mct_scout::platforms::hackerone[0m[2m:[0m ✓ Program 'Porsche' (@porsche): 109 domains in scope
+[2m2025-12-16T09:40:21.742930Z[0m [32m INFO[0m [2mct_scout::platforms::hackerone[0m[2m:[0m ✓ Program 'is*hosting' (@ishosting): 2 domains in scope
+[2m2025-12-16T09:40:22.054946Z[0m [32m INFO[0m [2mct_scout::platforms::hackerone[0m[2m:[0m ✓ Program 'Syfe' (@syfe_bbp): 7 domains in scope
+[2m2025-12-16T09:40:22.351623Z[0m [32m INFO[0m [2mct_scout::platforms::hackerone[0m[2m:[0m ✓ Program 'Neon' (@neon_bbp): 3 domains in scope
+[2m2025-12-16T09:40:22.655664Z[0m [32m INFO[0m [2mct_scout::platforms::hackerone[0m[2m:[0m ✓ Program 'Whoop Bug Bounty' (@whoop_bug_bounty): 3 domains in scope
+[2m2025-12-16T09:40:22.655751Z[0m [32m INFO[0m [2mct_scout::platforms::hackerone[0m[2m:[0m ─────────────────────────────────────────────────────────────
+[2m2025-12-16T09:40:22.655789Z[0m [32m INFO[0m [2mct_scout::platforms::hackerone[0m[2m:[0m HackerOne sync complete: 15 accessible programs with domains (out of 17 total)
+[2m2025-12-16T09:40:22.655794Z[0m [32m INFO[0m [2mct_scout::platforms::hackerone[0m[2m:[0m   • Accessible with domains: 15
+[2m2025-12-16T09:40:22.655797Z[0m [32m INFO[0m [2mct_scout::platforms::hackerone[0m[2m:[0m   • Restricted/no access: 0
+[2m2025-12-16T09:40:22.655800Z[0m [32m INFO[0m [2mct_scout::platforms::hackerone[0m[2m:[0m   • Empty scope: 2
+[2m2025-12-16T09:40:22.655803Z[0m [32m INFO[0m [2mct_scout::platforms::hackerone[0m[2m:[0m ─────────────────────────────────────────────────────────────
+[2m2025-12-16T09:40:22.655808Z[0m [32m INFO[0m [2mct_scout[0m[2m:[0m Fetched 15 programs from HackerOne
+[2m2025-12-16T09:40:22.655969Z[0m [32m INFO[0m [2mct_scout::platforms::intigriti[0m[2m:[0m Fetching programs from Intigriti (filter: following, max: 75)
+[2m2025-12-16T09:40:22.826840Z[0m [32m INFO[0m [2mct_scout::platforms::intigriti[0m[2m:[0m Found 4 total programs on Intigriti (filter: following)
+[2m2025-12-16T09:40:22.826933Z[0m [32m INFO[0m [2mct_scout::platforms::intigriti[0m[2m:[0m Intigriti: 4 programs to process (filter: following)
+[2m2025-12-16T09:40:22.826942Z[0m [32m INFO[0m [2mct_scout::platforms::intigriti[0m[2m:[0m Fetching scope details for each program...
+[2m2025-12-16T09:40:22.826946Z[0m [32m INFO[0m [2mct_scout::platforms::intigriti[0m[2m:[0m Note: 403 FORBID001 errors are expected for programs you're not enrolled in or that are restricted
+[2m2025-12-16T09:40:22.977143Z[0m [32m INFO[0m [2mct_scout::platforms::intigriti[0m[2m:[0m ✓ Program 'Zabka Polska Bug Bounty' (zabkapolskabugbounty): 2 domains in scope
+[2m2025-12-16T09:40:23.185530Z[0m [32m INFO[0m [2mct_scout::platforms::intigriti[0m[2m:[0m ✓ Program 'Social Deal' (socialdeal): 4 domains in scope
+[2m2025-12-16T09:40:23.275319Z[0m [32m INFO[0m [2mct_scout::platforms::intigriti[0m[2m:[0m ✓ Program 'Cloudways by DigitalOcean' (cloudways): 7 domains in scope
+[2m2025-12-16T09:40:23.275417Z[0m [32m INFO[0m [2mct_scout::platforms::intigriti[0m[2m:[0m ─────────────────────────────────────────────────────────────
+[2m2025-12-16T09:40:23.275426Z[0m [32m INFO[0m [2mct_scout::platforms::intigriti[0m[2m:[0m Intigriti sync complete: 3 accessible programs with domains (out of 4 total)
+[2m2025-12-16T09:40:23.275431Z[0m [32m INFO[0m [2mct_scout::platforms::intigriti[0m[2m:[0m   • Accessible with domains: 3
+[2m2025-12-16T09:40:23.275435Z[0m [32m INFO[0m [2mct_scout::platforms::intigriti[0m[2m:[0m   • Restricted/not enrolled: 0
+[2m2025-12-16T09:40:23.275439Z[0m [32m INFO[0m [2mct_scout::platforms::intigriti[0m[2m:[0m   • Empty scope: 1
+[2m2025-12-16T09:40:23.275443Z[0m [32m INFO[0m [2mct_scout::platforms::intigriti[0m[2m:[0m ─────────────────────────────────────────────────────────────
+[2m2025-12-16T09:40:23.275449Z[0m [32m INFO[0m [2mct_scout[0m[2m:[0m Fetched 3 programs from Intigriti
+[2m2025-12-16T09:40:23.275583Z[0m [32m INFO[0m [2mct_scout[0m[2m:[0m Platform sync complete. Total programs: 19
+[2m2025-12-16T09:40:23.275607Z[0m [32m INFO[0m [2mct_scout[0m[2m:[0m Exporting current scope to TOML format...
+[watchlist]
+domains = ["*.toolsforhumanity.com", "*.spapp.zabka.pl", "*.inspectorio.com", "*.world.org", "*.worldcoin.org", "*.zabka.pl", "*.socialdeal.nl"]
+hosts = []
+ips = []
+cidrs = []
+
+[[programs]]
+name = "Hilton"
+domains = [".hilton.com", ".hilton.io", "*.hiltonlocalbiz.com", "*.hilton.io", "*.hiltonbusinessonline.com", "hilton.io", "hiltonlocalbiz.com", "hiltonbusinessonline.com", "hilton.com", "*.hilton.com"]
+hosts = []
+ips = []
+cidrs = ["203.79.37.2/29", "192.251.125.0/24", "192.251.124.0/24", "62.216.152.46/29", "192.251.123.0/24", "192.251.126.0/24", "82.196.42.196/28", "121.200.237.36/29", "167.187.0.0/16"]
+
+[[programs]]
+name = "IBM"
+domains = [".ibm.com"]
+hosts = []
+ips = []
+cidrs = []
+
+[[programs]]
+name = "Inspectorio"
+domains = ["files-stg.inspectorio.com", "rise.stg.inspectorio.com", "app.stg.inspectorio.com", "report-html-sight.stg.inspectorio.com", "docuflow.stg.inspectorio.com", "api.stg.inspectorio.com", "id.stg.inspectorio.com", "rise-api.stg.inspectorio.com"]
+hosts = ["rise.stg.inspectorio.com", "rise-api.stg.inspectorio.com", "report-html-sight.stg.inspectorio.com", "id.stg.inspectorio.com", "files-stg.inspectorio.com", "docuflow.stg.inspectorio.com", "app.stg.inspectorio.com", "api.stg.inspectorio.com"]
+ips = []
+cidrs = []
+
+[[programs]]
+name = "Flat"
+domains = ["api.flat.io", "flat.io"]
+hosts = []
+ips = []
+cidrs = []
+
+[[programs]]
+name = "Remitly"
+domains = ["cardpayments.remitly.io", "access-sandbox.remitly.com", "ablink.info.remitly.com", "app.rewire.to", "partner-webhook.remitly.io", "access.remitly.com", "media.remitly.io", "*.dev.remitly.com", "rates.rewire.com", "site.rewire.com", "ir.remitly.com", "rewire.com", "careers.remitly.com", "news.remitly.com", "*.int.remitly.com", "cards.remitly.io", "app3.rewire.to", "blog.remitly.com", "metrics.int.remitly.com", "remitly.com", "api.remitly.io", "auth.remitly.com"]
+hosts = []
+ips = []
+cidrs = []
+
+[[programs]]
+name = "Remote | Vulnerability Disclosure Program"
+domains = ["employ.remote.com", "api.remote.com"]
+hosts = []
+ips = []
+cidrs = []
+
+[[programs]]
+name = "Alohi"
+domains = ["www.alohi.com", "*.sign.plus", "*.fax.plus"]
+hosts = []
+ips = []
+cidrs = []
+
+[[programs]]
+name = "City of Los Angeles"
+domains = ["*.lacity.gov", "*.lacity.org"]
+hosts = []
+ips = []
+cidrs = []
+
+[[programs]]
+name = "Mergify"
+domains = ["api.mergify.com", "dashboard.mergify.com"]
+hosts = []
+ips = []
+cidrs = []
+
+[[programs]]
+name = "NiceHash"
+domains = ["test.nicehash.com", "api-test.nicehash.com"]
+hosts = []
+ips = []
+cidrs = []
+
+[[programs]]
+name = "Tools for Humanity"
+domains = ["*.worldcoin-distributors.com", "getworldcoin.com", "worldcoin.org", "*.worldcoin.dev", "*.consumer.worldcoin.org", "id.worldcoin.org", "world.org", "developer.worldcoin.org", "toolsforhumanity.com", "*.toolsforhumanity.com", "*.worldcoin.org"]
+hosts = []
+ips = []
+cidrs = []
+
+[[programs]]
+name = "Porsche"
+domains = ["porsche-villingen.de", "porsche-zentrum-essen.de", "porsche-zentrum-niederrhein.de", "porsche-zentrum-paderborn.de", "porsche-zentrum-reutlingen.de", "porsche-zentrum-seestern.de", "porsche-zentrum-solingen-remscheid.de", "porschezentrum-berlin-sued.de", "porschezentrum-muenchen-sued.de", "pzsf.de", "studio-fa-porsche.de", "xn--porsche-alttting-wwb.de", "capitalmarketsday.porsche.com", "porsche-dortmund.eu", "microsite.porsche.com", "pzsc.de", "porschezentrumbremen.de", "porsche-wiesbaden.de", "porsche-koeln.de", "porsche-zentrum-wuppertal.de", "porscheengineering.com", "es.porsche.com", "porschetravels.com", "porshe-design.com", "studio-fa-porsche.com", "api-frontend.pab.porsche.com", "studio-fa-porsche.at", "pzms.de", "porshedesign.com", "porsche-zentrum-pforzheim.de", "pzk.de", "porsche-stuttgart.de", "xn--porsche-lbeck-4ob.de", "studiofaporsche.net", "porsche-hahn.de", "porsche-zentrum.com", "porsche-stuttgart-flughafen.de", "porsche.biz", "benefit.porsche-design.com", "studio-fa-porsche.net", "porsche-ulm.de", "porschegolfusa.com", "pzm.de", "paris.porsche.com", "studiofaporsche.de", "christmas-silence.porsche.com", "xn--porsche-mnchen-sd-b3bh.de", "porschezentrum-berlin.de", "porsche-hamburgnordwest.de", "porsche-zentrum-olympiapark.de", "xn--porsche-schwbisch-gmnd-c5b89c.de", "xn--porsche-gttingen-uwb.de", "xn--porsche-nrnberg-7vb.de", "xn--porsche-gppingen-uwb.de", "xn--porsche-lneburg-7vb.de", "investorrelations.porsche.de", "b2b.porsche-design.com", "xn--porsche-kln-zfb.de", "studiofaporsche.at", "myhistory.porsche.com", "pab.porsche.com", "prod.porsche-design.com", "cm.staging.pcom.weu.porsche.com", "porsche-duesseldorf.de", "porsche-giessen.de", "porsche-paderborn.de", "porsche-erfahren.de", "porsche-essen.de", "porsche-moers.de", "porsche-solingen.de", "porsche.it", "auth.pab.porsche.com", "xn--porsche-wrzburg-7vb.de", "skyway.porsche.com", "porsche-olympiapark.de", "studiofaporsche.com", "api.ppa.porsche.com", "ui.pab.porsche.com", "checkout.porsche.com", "porschefortcollins.com", "finder.porsche.com", "compare.porsche.com", "friends.porsche-design.com", "porsche-kempten.de", "my.porsche.com", "signup.porsche.com", "timepeacesconfigurator.porsche-design.com", "porschediesellookup.com", "www-staging.porscheautoinsurance.com", "api.emea.gravity.porsche.com", "experience.porsche.com", "porsche.digital", "porsche-design.com", "identity.porsche.com", "connect-store.porsche.com", "press.porsche.com", "ecc.porsche.com", "shop.porsche.com", "drive.porsche.com", "dealer.porsche.com", "api.pab.porsche.com", "porsche.de", "configurator.porsche.com", "porsche.com", "jobs.porsche-design.com", "jobs.porsche.com", "porsche-poster.com", "press.porsche-design.com", "porscheenglewood.com"]
+hosts = []
+ips = []
+cidrs = []
+
+[[programs]]
+name = "is*hosting"
+domains = ["ishosting.com", "my.ishosting.com"]
+hosts = []
+ips = []
+cidrs = []
+
+[[programs]]
+name = "Syfe"
+domains = ["mark8.syfe.com", "api.syfe.com", "alfred-uat-31.nonprod.syfe.com", "alfred.syfe.com", "api-uat-bugbounty.nonprod.syfe.com", "uat-bugbounty.nonprod.syfe.com", "www.syfe.com"]
+hosts = []
+ips = []
+cidrs = []
+
+[[programs]]
+name = "Neon"
+domains = ["console.neon.tech", "console-stage.neon.build"]
+hosts = []
+ips = []
+cidrs = []
+
+[[programs]]
+name = "Whoop Bug Bounty"
+domains = ["app.whoop.com", "shop.whoop.com", "api.prod.whoop.com"]
+hosts = []
+ips = []
+cidrs = []
+
+[[programs]]
+name = "Zabka Polska Bug Bounty"
+domains = ["czs.superlogin.pl", "*.spapp.zabka.pl"]
+hosts = []
+ips = []
+cidrs = []
+
+[[programs]]
+name = "Social Deal"
+domains = ["socialdeal.nl", "www.whynot.com", "www.socialdeal.nl"]
+hosts = []
+ips = []
+cidrs = []
+
+[[programs]]
+name = "Cloudways by DigitalOcean"
+domains = ["*.cloudways.com", "api.cloudways.com", "developers.cloudways.com", "platform.cloudways.com", "unified.cloudways.com", "www.cloudways.com", "css-tricks.com"]
+hosts = []
+ips = []
+cidrs = []
+
+
+[2m2025-12-16T09:40:23.275780Z[0m [32m INFO[0m [2mct_scout[0m[2m:[0m Export complete. Exiting.

@@ -1,0 +1,186 @@
+[2m2025-12-16T08:34:48.567433Z[0m [32m INFO[0m [2mct_scout[0m[2m:[0m Starting ct-scout...
+[2m2025-12-16T08:34:48.567468Z[0m [32m INFO[0m [2mct_scout[0m[2m:[0m Loaded watchlist: 7 domains, 0 hosts, 0 IPs, 0 CIDRs
+[2m2025-12-16T08:34:48.567472Z[0m [32m INFO[0m [2mct_scout[0m[2m:[0m Platform API integration enabled, syncing watchlist...
+[2m2025-12-16T08:34:48.567475Z[0m [32m INFO[0m [2mct_scout[0m[2m:[0m Initializing HackerOne API integration
+[2m2025-12-16T08:34:48.598220Z[0m [34mDEBUG[0m [2mreqwest::connect[0m[2m:[0m starting new connection: https://api.hackerone.com/
+[2m2025-12-16T08:34:48.612848Z[0m [34mDEBUG[0m [2mhyper_util::client::legacy::connect::http[0m[2m:[0m connecting to 104.18.36.214:443
+[2m2025-12-16T08:34:48.616960Z[0m [34mDEBUG[0m [2mhyper_util::client::legacy::connect::http[0m[2m:[0m connected to 104.18.36.214:443
+[2m2025-12-16T08:34:49.061316Z[0m [32m INFO[0m [2mct_scout[0m[2m:[0m HackerOne API connection successful
+[2m2025-12-16T08:34:49.061338Z[0m [32m INFO[0m [2mct_scout[0m[2m:[0m Initializing Intigriti API integration
+[2m2025-12-16T08:34:49.087162Z[0m [34mDEBUG[0m [2mreqwest::connect[0m[2m:[0m starting new connection: https://api.intigriti.com/
+[2m2025-12-16T08:34:49.107272Z[0m [34mDEBUG[0m [2mhyper_util::client::legacy::connect::http[0m[2m:[0m connecting to 18.245.86.129:443
+[2m2025-12-16T08:34:49.111206Z[0m [34mDEBUG[0m [2mhyper_util::client::legacy::connect::http[0m[2m:[0m connected to 18.245.86.129:443
+[2m2025-12-16T08:34:49.287779Z[0m [32m INFO[0m [2mct_scout[0m[2m:[0m Intigriti API connection successful
+[2m2025-12-16T08:34:49.287835Z[0m [32m INFO[0m [2mct_scout::platforms::hackerone[0m[2m:[0m Fetching programs from HackerOne (filter: bookmarked, max: 50)
+[2m2025-12-16T08:34:49.287845Z[0m [34mDEBUG[0m [2mct_scout::platforms::hackerone[0m[2m:[0m Fetching HackerOne page 1 (size: 100)
+[2m2025-12-16T08:34:49.287984Z[0m [34mDEBUG[0m [2mreqwest::connect[0m[2m:[0m starting new connection: https://api.hackerone.com/
+[2m2025-12-16T08:34:49.290264Z[0m [34mDEBUG[0m [2mhyper_util::client::legacy::connect::http[0m[2m:[0m connecting to 104.18.36.214:443
+[2m2025-12-16T08:34:49.294456Z[0m [34mDEBUG[0m [2mhyper_util::client::legacy::connect::http[0m[2m:[0m connected to 104.18.36.214:443
+[2m2025-12-16T08:34:50.580593Z[0m [34mDEBUG[0m [2mhyper_util::client::legacy::pool[0m[2m:[0m pooling idle connection for ("https", api.hackerone.com)
+[2m2025-12-16T08:34:50.583732Z[0m [34mDEBUG[0m [2mct_scout::platforms::hackerone[0m[2m:[0m Found 100 programs on page 1
+[2m2025-12-16T08:34:50.584117Z[0m [34mDEBUG[0m [2mct_scout::platforms::hackerone[0m[2m:[0m Fetching HackerOne page 2 (size: 100)
+[2m2025-12-16T08:34:50.584247Z[0m [34mDEBUG[0m [2mhyper_util::client::legacy::pool[0m[2m:[0m reuse idle connection for ("https", api.hackerone.com)
+[2m2025-12-16T08:34:51.434230Z[0m [34mDEBUG[0m [2mhyper_util::client::legacy::pool[0m[2m:[0m pooling idle connection for ("https", api.hackerone.com)
+[2m2025-12-16T08:34:51.436633Z[0m [34mDEBUG[0m [2mct_scout::platforms::hackerone[0m[2m:[0m Found 100 programs on page 2
+[2m2025-12-16T08:34:51.436943Z[0m [34mDEBUG[0m [2mct_scout::platforms::hackerone[0m[2m:[0m Fetching HackerOne page 3 (size: 100)
+[2m2025-12-16T08:34:51.437160Z[0m [34mDEBUG[0m [2mhyper_util::client::legacy::pool[0m[2m:[0m reuse idle connection for ("https", api.hackerone.com)
+[2m2025-12-16T08:34:53.214749Z[0m [34mDEBUG[0m [2mhyper_util::client::legacy::pool[0m[2m:[0m pooling idle connection for ("https", api.hackerone.com)
+[2m2025-12-16T08:34:53.216448Z[0m [34mDEBUG[0m [2mct_scout::platforms::hackerone[0m[2m:[0m Found 100 programs on page 3
+[2m2025-12-16T08:34:53.216631Z[0m [34mDEBUG[0m [2mct_scout::platforms::hackerone[0m[2m:[0m Fetching HackerOne page 4 (size: 100)
+[2m2025-12-16T08:34:53.216800Z[0m [34mDEBUG[0m [2mhyper_util::client::legacy::pool[0m[2m:[0m reuse idle connection for ("https", api.hackerone.com)
+[2m2025-12-16T08:34:54.193442Z[0m [34mDEBUG[0m [2mhyper_util::client::legacy::pool[0m[2m:[0m pooling idle connection for ("https", api.hackerone.com)
+[2m2025-12-16T08:34:54.195456Z[0m [34mDEBUG[0m [2mct_scout::platforms::hackerone[0m[2m:[0m Found 100 programs on page 4
+[2m2025-12-16T08:34:54.195699Z[0m [34mDEBUG[0m [2mct_scout::platforms::hackerone[0m[2m:[0m Fetching HackerOne page 5 (size: 100)
+[2m2025-12-16T08:34:54.195940Z[0m [34mDEBUG[0m [2mhyper_util::client::legacy::pool[0m[2m:[0m reuse idle connection for ("https", api.hackerone.com)
+[2m2025-12-16T08:34:55.456008Z[0m [34mDEBUG[0m [2mhyper_util::client::legacy::pool[0m[2m:[0m pooling idle connection for ("https", api.hackerone.com)
+[2m2025-12-16T08:34:55.458620Z[0m [34mDEBUG[0m [2mct_scout::platforms::hackerone[0m[2m:[0m Found 100 programs on page 5
+[2m2025-12-16T08:34:55.458915Z[0m [34mDEBUG[0m [2mct_scout::platforms::hackerone[0m[2m:[0m Fetching HackerOne page 6 (size: 100)
+[2m2025-12-16T08:34:55.459132Z[0m [34mDEBUG[0m [2mhyper_util::client::legacy::pool[0m[2m:[0m reuse idle connection for ("https", api.hackerone.com)
+[2m2025-12-16T08:34:56.436605Z[0m [34mDEBUG[0m [2mhyper_util::client::legacy::pool[0m[2m:[0m pooling idle connection for ("https", api.hackerone.com)
+[2m2025-12-16T08:34:56.438595Z[0m [34mDEBUG[0m [2mct_scout::platforms::hackerone[0m[2m:[0m Found 89 programs on page 6
+[2m2025-12-16T08:34:56.438697Z[0m [34mDEBUG[0m [2mct_scout::platforms::hackerone[0m[2m:[0m No more pages available
+[2m2025-12-16T08:34:56.438788Z[0m [32m INFO[0m [2mct_scout::platforms::hackerone[0m[2m:[0m Found 17 total programs on HackerOne (filter: bookmarked)
+[2m2025-12-16T08:34:56.438799Z[0m [32m INFO[0m [2mct_scout::platforms::hackerone[0m[2m:[0m HackerOne: 17 programs to process (filter: bookmarked)
+[2m2025-12-16T08:34:56.438803Z[0m [32m INFO[0m [2mct_scout::platforms::hackerone[0m[2m:[0m Fetching structured scope for each program...
+[2m2025-12-16T08:34:56.438806Z[0m [32m INFO[0m [2mct_scout::platforms::hackerone[0m[2m:[0m Note: 403 Forbidden errors are expected for private programs you're not enrolled in
+[2m2025-12-16T08:34:56.438811Z[0m [34mDEBUG[0m [2mct_scout::platforms::hackerone[0m[2m:[0m Fetching scope for program: ibm
+[2m2025-12-16T08:34:56.439012Z[0m [34mDEBUG[0m [2mhyper_util::client::legacy::pool[0m[2m:[0m reuse idle connection for ("https", api.hackerone.com)
+[2m2025-12-16T08:34:56.844362Z[0m [34mDEBUG[0m [2mhyper_util::client::legacy::pool[0m[2m:[0m pooling idle connection for ("https", api.hackerone.com)
+[2m2025-12-16T08:34:56.844432Z[0m [34mDEBUG[0m [2mct_scout::platforms::hackerone[0m[2m:[0m Found 0 domains for program: ibm
+[2m2025-12-16T08:34:56.844455Z[0m [34mDEBUG[0m [2mct_scout::platforms::hackerone[0m[2m:[0m Fetching scope for program: flat_io
+[2m2025-12-16T08:34:56.844512Z[0m [34mDEBUG[0m [2mhyper_util::client::legacy::pool[0m[2m:[0m reuse idle connection for ("https", api.hackerone.com)
+[2m2025-12-16T08:34:57.274731Z[0m [34mDEBUG[0m [2mhyper_util::client::legacy::pool[0m[2m:[0m pooling idle connection for ("https", api.hackerone.com)
+[2m2025-12-16T08:34:57.274812Z[0m [34mDEBUG[0m [2mct_scout::platforms::hackerone[0m[2m:[0m Found 0 domains for program: flat_io
+[2m2025-12-16T08:34:57.274852Z[0m [34mDEBUG[0m [2mct_scout::platforms::hackerone[0m[2m:[0m Fetching scope for program: remitly
+[2m2025-12-16T08:34:57.274955Z[0m [34mDEBUG[0m [2mhyper_util::client::legacy::pool[0m[2m:[0m reuse idle connection for ("https", api.hackerone.com)
+[2m2025-12-16T08:34:57.568534Z[0m [34mDEBUG[0m [2mhyper_util::client::legacy::pool[0m[2m:[0m pooling idle connection for ("https", api.hackerone.com)
+[2m2025-12-16T08:34:57.568702Z[0m [34mDEBUG[0m [2mct_scout::platforms::hackerone[0m[2m:[0m Found 0 domains for program: remitly
+[2m2025-12-16T08:34:57.568756Z[0m [34mDEBUG[0m [2mct_scout::platforms::hackerone[0m[2m:[0m Fetching scope for program: trafficfactory
+[2m2025-12-16T08:34:57.568806Z[0m [34mDEBUG[0m [2mhyper_util::client::legacy::pool[0m[2m:[0m reuse idle connection for ("https", api.hackerone.com)
+[2m2025-12-16T08:34:58.019652Z[0m [34mDEBUG[0m [2mhyper_util::client::legacy::pool[0m[2m:[0m pooling idle connection for ("https", api.hackerone.com)
+[2m2025-12-16T08:34:58.019701Z[0m [34mDEBUG[0m [2mct_scout::platforms::hackerone[0m[2m:[0m Found 0 domains for program: trafficfactory
+[2m2025-12-16T08:34:58.019726Z[0m [34mDEBUG[0m [2mct_scout::platforms::hackerone[0m[2m:[0m Fetching scope for program: inspectorio
+[2m2025-12-16T08:34:58.019775Z[0m [34mDEBUG[0m [2mhyper_util::client::legacy::pool[0m[2m:[0m reuse idle connection for ("https", api.hackerone.com)
+[2m2025-12-16T08:34:58.447460Z[0m [34mDEBUG[0m [2mhyper_util::client::legacy::pool[0m[2m:[0m pooling idle connection for ("https", api.hackerone.com)
+[2m2025-12-16T08:34:58.447553Z[0m [34mDEBUG[0m [2mct_scout::platforms::hackerone[0m[2m:[0m Found 0 domains for program: inspectorio
+[2m2025-12-16T08:34:58.447589Z[0m [34mDEBUG[0m [2mct_scout::platforms::hackerone[0m[2m:[0m Fetching scope for program: remote
+[2m2025-12-16T08:34:58.447643Z[0m [34mDEBUG[0m [2mhyper_util::client::legacy::pool[0m[2m:[0m reuse idle connection for ("https", api.hackerone.com)
+[2m2025-12-16T08:34:58.746438Z[0m [34mDEBUG[0m [2mhyper_util::client::legacy::pool[0m[2m:[0m pooling idle connection for ("https", api.hackerone.com)
+[2m2025-12-16T08:34:58.746503Z[0m [34mDEBUG[0m [2mct_scout::platforms::hackerone[0m[2m:[0m Found 0 domains for program: remote
+[2m2025-12-16T08:34:58.746534Z[0m [34mDEBUG[0m [2mct_scout::platforms::hackerone[0m[2m:[0m Fetching scope for program: hilton
+[2m2025-12-16T08:34:58.746588Z[0m [34mDEBUG[0m [2mhyper_util::client::legacy::pool[0m[2m:[0m reuse idle connection for ("https", api.hackerone.com)
+[2m2025-12-16T08:34:59.102451Z[0m [34mDEBUG[0m [2mhyper_util::client::legacy::pool[0m[2m:[0m pooling idle connection for ("https", api.hackerone.com)
+[2m2025-12-16T08:34:59.102641Z[0m [34mDEBUG[0m [2mct_scout::platforms::hackerone[0m[2m:[0m Found 0 domains for program: hilton
+[2m2025-12-16T08:34:59.102699Z[0m [34mDEBUG[0m [2mct_scout::platforms::hackerone[0m[2m:[0m Fetching scope for program: alohi
+[2m2025-12-16T08:34:59.102800Z[0m [34mDEBUG[0m [2mhyper_util::client::legacy::pool[0m[2m:[0m reuse idle connection for ("https", api.hackerone.com)
+[2m2025-12-16T08:34:59.393512Z[0m [34mDEBUG[0m [2mhyper_util::client::legacy::pool[0m[2m:[0m pooling idle connection for ("https", api.hackerone.com)
+[2m2025-12-16T08:34:59.393652Z[0m [34mDEBUG[0m [2mct_scout::platforms::hackerone[0m[2m:[0m Found 0 domains for program: alohi
+[2m2025-12-16T08:34:59.393694Z[0m [34mDEBUG[0m [2mct_scout::platforms::hackerone[0m[2m:[0m Fetching scope for program: city_of_los_angeles_vdp
+[2m2025-12-16T08:34:59.393764Z[0m [34mDEBUG[0m [2mhyper_util::client::legacy::pool[0m[2m:[0m reuse idle connection for ("https", api.hackerone.com)
+[2m2025-12-16T08:34:59.695254Z[0m [34mDEBUG[0m [2mhyper_util::client::legacy::pool[0m[2m:[0m pooling idle connection for ("https", api.hackerone.com)
+[2m2025-12-16T08:34:59.695323Z[0m [34mDEBUG[0m [2mct_scout::platforms::hackerone[0m[2m:[0m Found 0 domains for program: city_of_los_angeles_vdp
+[2m2025-12-16T08:34:59.695359Z[0m [34mDEBUG[0m [2mct_scout::platforms::hackerone[0m[2m:[0m Fetching scope for program: mergify
+[2m2025-12-16T08:34:59.695419Z[0m [34mDEBUG[0m [2mhyper_util::client::legacy::pool[0m[2m:[0m reuse idle connection for ("https", api.hackerone.com)
+[2m2025-12-16T08:35:00.005734Z[0m [34mDEBUG[0m [2mhyper_util::client::legacy::pool[0m[2m:[0m pooling idle connection for ("https", api.hackerone.com)
+[2m2025-12-16T08:35:00.005864Z[0m [34mDEBUG[0m [2mct_scout::platforms::hackerone[0m[2m:[0m Found 0 domains for program: mergify
+[2m2025-12-16T08:35:00.005934Z[0m [34mDEBUG[0m [2mct_scout::platforms::hackerone[0m[2m:[0m Fetching scope for program: nicehash
+[2m2025-12-16T08:35:00.005993Z[0m [34mDEBUG[0m [2mhyper_util::client::legacy::pool[0m[2m:[0m reuse idle connection for ("https", api.hackerone.com)
+[2m2025-12-16T08:35:00.300396Z[0m [34mDEBUG[0m [2mhyper_util::client::legacy::pool[0m[2m:[0m pooling idle connection for ("https", api.hackerone.com)
+[2m2025-12-16T08:35:00.300479Z[0m [34mDEBUG[0m [2mct_scout::platforms::hackerone[0m[2m:[0m Found 0 domains for program: nicehash
+[2m2025-12-16T08:35:00.300513Z[0m [34mDEBUG[0m [2mct_scout::platforms::hackerone[0m[2m:[0m Fetching scope for program: toolsforhumanity
+[2m2025-12-16T08:35:00.300563Z[0m [34mDEBUG[0m [2mhyper_util::client::legacy::pool[0m[2m:[0m reuse idle connection for ("https", api.hackerone.com)
+[2m2025-12-16T08:35:00.683283Z[0m [34mDEBUG[0m [2mhyper_util::client::legacy::pool[0m[2m:[0m pooling idle connection for ("https", api.hackerone.com)
+[2m2025-12-16T08:35:00.683457Z[0m [34mDEBUG[0m [2mct_scout::platforms::hackerone[0m[2m:[0m Found 0 domains for program: toolsforhumanity
+[2m2025-12-16T08:35:00.683639Z[0m [34mDEBUG[0m [2mct_scout::platforms::hackerone[0m[2m:[0m Fetching scope for program: porsche
+[2m2025-12-16T08:35:00.683701Z[0m [34mDEBUG[0m [2mhyper_util::client::legacy::pool[0m[2m:[0m reuse idle connection for ("https", api.hackerone.com)
+[2m2025-12-16T08:35:01.633517Z[0m [34mDEBUG[0m [2mhyper_util::client::legacy::pool[0m[2m:[0m pooling idle connection for ("https", api.hackerone.com)
+[2m2025-12-16T08:35:01.634109Z[0m [34mDEBUG[0m [2mct_scout::platforms::hackerone[0m[2m:[0m Found 0 domains for program: porsche
+[2m2025-12-16T08:35:01.634217Z[0m [34mDEBUG[0m [2mct_scout::platforms::hackerone[0m[2m:[0m Fetching scope for program: ishosting
+[2m2025-12-16T08:35:01.634341Z[0m [34mDEBUG[0m [2mhyper_util::client::legacy::pool[0m[2m:[0m reuse idle connection for ("https", api.hackerone.com)
+[2m2025-12-16T08:35:01.930795Z[0m [34mDEBUG[0m [2mhyper_util::client::legacy::pool[0m[2m:[0m pooling idle connection for ("https", api.hackerone.com)
+[2m2025-12-16T08:35:01.931131Z[0m [34mDEBUG[0m [2mct_scout::platforms::hackerone[0m[2m:[0m Found 0 domains for program: ishosting
+[2m2025-12-16T08:35:01.931168Z[0m [34mDEBUG[0m [2mct_scout::platforms::hackerone[0m[2m:[0m Fetching scope for program: syfe_bbp
+[2m2025-12-16T08:35:01.931225Z[0m [34mDEBUG[0m [2mhyper_util::client::legacy::pool[0m[2m:[0m reuse idle connection for ("https", api.hackerone.com)
+[2m2025-12-16T08:35:02.331470Z[0m [34mDEBUG[0m [2mhyper_util::client::legacy::pool[0m[2m:[0m pooling idle connection for ("https", api.hackerone.com)
+[2m2025-12-16T08:35:02.331610Z[0m [34mDEBUG[0m [2mct_scout::platforms::hackerone[0m[2m:[0m Found 0 domains for program: syfe_bbp
+[2m2025-12-16T08:35:02.331638Z[0m [34mDEBUG[0m [2mct_scout::platforms::hackerone[0m[2m:[0m Fetching scope for program: neon_bbp
+[2m2025-12-16T08:35:02.331704Z[0m [34mDEBUG[0m [2mhyper_util::client::legacy::pool[0m[2m:[0m reuse idle connection for ("https", api.hackerone.com)
+[2m2025-12-16T08:35:02.670973Z[0m [34mDEBUG[0m [2mhyper_util::client::legacy::pool[0m[2m:[0m pooling idle connection for ("https", api.hackerone.com)
+[2m2025-12-16T08:35:02.671075Z[0m [34mDEBUG[0m [2mct_scout::platforms::hackerone[0m[2m:[0m Found 0 domains for program: neon_bbp
+[2m2025-12-16T08:35:02.671116Z[0m [34mDEBUG[0m [2mct_scout::platforms::hackerone[0m[2m:[0m Fetching scope for program: whoop_bug_bounty
+[2m2025-12-16T08:35:02.671209Z[0m [34mDEBUG[0m [2mhyper_util::client::legacy::pool[0m[2m:[0m reuse idle connection for ("https", api.hackerone.com)
+[2m2025-12-16T08:35:03.020286Z[0m [34mDEBUG[0m [2mhyper_util::client::legacy::pool[0m[2m:[0m pooling idle connection for ("https", api.hackerone.com)
+[2m2025-12-16T08:35:03.020404Z[0m [34mDEBUG[0m [2mct_scout::platforms::hackerone[0m[2m:[0m Found 0 domains for program: whoop_bug_bounty
+[2m2025-12-16T08:35:03.020444Z[0m [32m INFO[0m [2mct_scout::platforms::hackerone[0m[2m:[0m ─────────────────────────────────────────────────────────────
+[2m2025-12-16T08:35:03.020450Z[0m [32m INFO[0m [2mct_scout::platforms::hackerone[0m[2m:[0m HackerOne sync complete: 0 accessible programs with domains (out of 17 total)
+[2m2025-12-16T08:35:03.020453Z[0m [32m INFO[0m [2mct_scout::platforms::hackerone[0m[2m:[0m   • Accessible with domains: 0
+[2m2025-12-16T08:35:03.020455Z[0m [32m INFO[0m [2mct_scout::platforms::hackerone[0m[2m:[0m   • Restricted/no access: 0
+[2m2025-12-16T08:35:03.020457Z[0m [32m INFO[0m [2mct_scout::platforms::hackerone[0m[2m:[0m   • Empty scope: 17
+[2m2025-12-16T08:35:03.020459Z[0m [32m INFO[0m [2mct_scout::platforms::hackerone[0m[2m:[0m ─────────────────────────────────────────────────────────────
+[2m2025-12-16T08:35:03.020463Z[0m [32m INFO[0m [2mct_scout[0m[2m:[0m Fetched 0 programs from HackerOne
+[2m2025-12-16T08:35:03.020483Z[0m [32m INFO[0m [2mct_scout::platforms::intigriti[0m[2m:[0m Fetching programs from Intigriti (filter: following, max: 75)
+[2m2025-12-16T08:35:03.020488Z[0m [34mDEBUG[0m [2mct_scout::platforms::intigriti[0m[2m:[0m Fetching Intigriti offset 0 (limit: 500, filter: following)
+[2m2025-12-16T08:35:03.020533Z[0m [34mDEBUG[0m [2mreqwest::connect[0m[2m:[0m starting new connection: https://api.intigriti.com/
+[2m2025-12-16T08:35:03.023223Z[0m [34mDEBUG[0m [2mhyper_util::client::legacy::connect::http[0m[2m:[0m connecting to 18.245.86.129:443
+[2m2025-12-16T08:35:03.026872Z[0m [34mDEBUG[0m [2mhyper_util::client::legacy::connect::http[0m[2m:[0m connected to 18.245.86.129:443
+[2m2025-12-16T08:35:03.220147Z[0m [34mDEBUG[0m [2mhyper_util::client::legacy::pool[0m[2m:[0m pooling idle connection for ("https", api.intigriti.com)
+[2m2025-12-16T08:35:03.220302Z[0m [34mDEBUG[0m [2mct_scout::platforms::intigriti[0m[2m:[0m Found 4 programs at offset 0 (total available: 4)
+[2m2025-12-16T08:35:03.220330Z[0m [34mDEBUG[0m [2mct_scout::platforms::intigriti[0m[2m:[0m Fetched all 4 available programs
+[2m2025-12-16T08:35:03.220348Z[0m [32m INFO[0m [2mct_scout::platforms::intigriti[0m[2m:[0m Found 4 total programs on Intigriti (filter: following)
+[2m2025-12-16T08:35:03.220354Z[0m [32m INFO[0m [2mct_scout::platforms::intigriti[0m[2m:[0m Intigriti: 4 programs to process (filter: following)
+[2m2025-12-16T08:35:03.220359Z[0m [32m INFO[0m [2mct_scout::platforms::intigriti[0m[2m:[0m Fetching scope details for each program...
+[2m2025-12-16T08:35:03.220364Z[0m [32m INFO[0m [2mct_scout::platforms::intigriti[0m[2m:[0m Note: 403 FORBID001 errors are expected for programs you're not enrolled in or that are restricted
+[2m2025-12-16T08:35:03.220370Z[0m [34mDEBUG[0m [2mct_scout::platforms::intigriti[0m[2m:[0m Fetching scope for program: 08a8b44a-bf5f-4b2b-85c7-c8a060273522
+[2m2025-12-16T08:35:03.220432Z[0m [34mDEBUG[0m [2mhyper_util::client::legacy::pool[0m[2m:[0m reuse idle connection for ("https", api.intigriti.com)
+[2m2025-12-16T08:35:03.379031Z[0m [34mDEBUG[0m [2mhyper_util::client::legacy::pool[0m[2m:[0m pooling idle connection for ("https", api.intigriti.com)
+[2m2025-12-16T08:35:03.379138Z[0m [34mDEBUG[0m [2mct_scout::platforms::intigriti[0m[2m:[0m Found 0 domains for program: 08a8b44a-bf5f-4b2b-85c7-c8a060273522
+[2m2025-12-16T08:35:03.379184Z[0m [34mDEBUG[0m [2mct_scout::platforms::intigriti[0m[2m:[0m Fetching scope for program: 101b7b3a-5bb1-454c-95a9-5ee017fa042d
+[2m2025-12-16T08:35:03.379281Z[0m [34mDEBUG[0m [2mhyper_util::client::legacy::pool[0m[2m:[0m reuse idle connection for ("https", api.intigriti.com)
+[2m2025-12-16T08:35:03.533337Z[0m [34mDEBUG[0m [2mhyper_util::client::legacy::pool[0m[2m:[0m pooling idle connection for ("https", api.intigriti.com)
+[2m2025-12-16T08:35:03.533412Z[0m [34mDEBUG[0m [2mct_scout::platforms::intigriti[0m[2m:[0m Found 0 domains for program: 101b7b3a-5bb1-454c-95a9-5ee017fa042d
+[2m2025-12-16T08:35:03.533432Z[0m [34mDEBUG[0m [2mct_scout::platforms::intigriti[0m[2m:[0m Fetching scope for program: 152bc833-04a4-40d2-bdaa-0b31f6161449
+[2m2025-12-16T08:35:03.533489Z[0m [34mDEBUG[0m [2mhyper_util::client::legacy::pool[0m[2m:[0m reuse idle connection for ("https", api.intigriti.com)
+[2m2025-12-16T08:35:03.640978Z[0m [34mDEBUG[0m [2mhyper_util::client::legacy::pool[0m[2m:[0m pooling idle connection for ("https", api.intigriti.com)
+[2m2025-12-16T08:35:03.641069Z[0m [34mDEBUG[0m [2mct_scout::platforms::intigriti[0m[2m:[0m Found 0 domains for program: 152bc833-04a4-40d2-bdaa-0b31f6161449
+[2m2025-12-16T08:35:03.641094Z[0m [34mDEBUG[0m [2mct_scout::platforms::intigriti[0m[2m:[0m Fetching scope for program: afeb2624-ac2e-46bc-b078-b0e018baeb62
+[2m2025-12-16T08:35:03.641151Z[0m [34mDEBUG[0m [2mhyper_util::client::legacy::pool[0m[2m:[0m reuse idle connection for ("https", api.intigriti.com)
+[2m2025-12-16T08:35:03.789758Z[0m [34mDEBUG[0m [2mhyper_util::client::legacy::pool[0m[2m:[0m pooling idle connection for ("https", api.intigriti.com)
+[2m2025-12-16T08:35:03.789939Z[0m [34mDEBUG[0m [2mct_scout::platforms::intigriti[0m[2m:[0m Found 0 domains for program: afeb2624-ac2e-46bc-b078-b0e018baeb62
+[2m2025-12-16T08:35:03.789981Z[0m [32m INFO[0m [2mct_scout::platforms::intigriti[0m[2m:[0m ─────────────────────────────────────────────────────────────
+[2m2025-12-16T08:35:03.789998Z[0m [32m INFO[0m [2mct_scout::platforms::intigriti[0m[2m:[0m Intigriti sync complete: 0 accessible programs with domains (out of 4 total)
+[2m2025-12-16T08:35:03.790002Z[0m [32m INFO[0m [2mct_scout::platforms::intigriti[0m[2m:[0m   • Accessible with domains: 0
+[2m2025-12-16T08:35:03.790006Z[0m [32m INFO[0m [2mct_scout::platforms::intigriti[0m[2m:[0m   • Restricted/not enrolled: 0
+[2m2025-12-16T08:35:03.790008Z[0m [32m INFO[0m [2mct_scout::platforms::intigriti[0m[2m:[0m   • Empty scope: 4
+[2m2025-12-16T08:35:03.790011Z[0m [32m INFO[0m [2mct_scout::platforms::intigriti[0m[2m:[0m ─────────────────────────────────────────────────────────────
+[2m2025-12-16T08:35:03.790016Z[0m [32m INFO[0m [2mct_scout[0m[2m:[0m Fetched 0 programs from Intigriti
+[2m2025-12-16T08:35:03.790058Z[0m [32m INFO[0m [2mct_scout[0m[2m:[0m Platform sync complete. Total programs: 3
+[2m2025-12-16T08:35:03.790070Z[0m [32m INFO[0m [2mct_scout[0m[2m:[0m Exporting current scope to TOML format...
+[watchlist]
+domains = ["*.toolsforhumanity.com", "*.spapp.zabka.pl", "*.inspectorio.com", "*.world.org", "*.worldcoin.org", "*.zabka.pl", "*.socialdeal.nl"]
+hosts = []
+ips = []
+cidrs = []
+
+[[programs]]
+name = "Hilton"
+domains = [".hilton.com", ".hilton.io"]
+hosts = []
+ips = []
+cidrs = ["203.79.37.2/29", "192.251.125.0/24", "192.251.124.0/24", "62.216.152.46/29", "192.251.123.0/24", "192.251.126.0/24", "82.196.42.196/28", "121.200.237.36/29", "167.187.0.0/16"]
+
+[[programs]]
+name = "IBM"
+domains = [".ibm.com"]
+hosts = []
+ips = []
+cidrs = []
+
+[[programs]]
+name = "Inspectorio"
+domains = []
+hosts = ["rise.stg.inspectorio.com", "rise-api.stg.inspectorio.com", "report-html-sight.stg.inspectorio.com", "id.stg.inspectorio.com", "files-stg.inspectorio.com", "docuflow.stg.inspectorio.com", "app.stg.inspectorio.com", "api.stg.inspectorio.com"]
+ips = []
+cidrs = []
+
+
+[2m2025-12-16T08:35:03.790123Z[0m [32m INFO[0m [2mct_scout[0m[2m:[0m Export complete. Exiting.

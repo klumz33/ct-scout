@@ -1,0 +1,62 @@
+[2m2025-12-16T08:18:34.285720Z[0m [32m INFO[0m [2mct_scout[0m[2m:[0m Starting ct-scout...
+[2m2025-12-16T08:18:34.285786Z[0m [32m INFO[0m [2mct_scout[0m[2m:[0m Loaded watchlist: 7 domains, 0 hosts, 0 IPs, 0 CIDRs
+[2m2025-12-16T08:18:34.285792Z[0m [32m INFO[0m [2mct_scout[0m[2m:[0m Platform API integration enabled, syncing watchlist...
+[2m2025-12-16T08:18:34.285795Z[0m [32m INFO[0m [2mct_scout[0m[2m:[0m Initializing HackerOne API integration
+[2m2025-12-16T08:18:34.764479Z[0m [32m INFO[0m [2mct_scout[0m[2m:[0m HackerOne API connection successful
+[2m2025-12-16T08:18:34.764541Z[0m [32m INFO[0m [2mct_scout[0m[2m:[0m Initializing Intigriti API integration
+[2m2025-12-16T08:18:35.043746Z[0m [32m INFO[0m [2mct_scout[0m[2m:[0m Intigriti API connection successful
+[2m2025-12-16T08:18:35.043817Z[0m [32m INFO[0m [2mct_scout::platforms::hackerone[0m[2m:[0m Fetching programs from HackerOne (filter: bookmarked, max: 50)
+[2m2025-12-16T08:18:41.793052Z[0m [32m INFO[0m [2mct_scout::platforms::hackerone[0m[2m:[0m Found 17 total programs on HackerOne (filter: bookmarked)
+[2m2025-12-16T08:18:41.793135Z[0m [32m INFO[0m [2mct_scout::platforms::hackerone[0m[2m:[0m HackerOne: 17 programs to process (filter: bookmarked)
+[2m2025-12-16T08:18:41.793141Z[0m [32m INFO[0m [2mct_scout::platforms::hackerone[0m[2m:[0m Fetching structured scope for each program...
+[2m2025-12-16T08:18:41.793144Z[0m [32m INFO[0m [2mct_scout::platforms::hackerone[0m[2m:[0m Note: 403 Forbidden errors are expected for private programs you're not enrolled in
+[2m2025-12-16T08:18:47.564014Z[0m [32m INFO[0m [2mct_scout::platforms::hackerone[0m[2m:[0m ─────────────────────────────────────────────────────────────
+[2m2025-12-16T08:18:47.564142Z[0m [32m INFO[0m [2mct_scout::platforms::hackerone[0m[2m:[0m HackerOne sync complete: 0 accessible programs with domains (out of 17 total)
+[2m2025-12-16T08:18:47.564153Z[0m [32m INFO[0m [2mct_scout::platforms::hackerone[0m[2m:[0m   • Accessible with domains: 0
+[2m2025-12-16T08:18:47.564159Z[0m [32m INFO[0m [2mct_scout::platforms::hackerone[0m[2m:[0m   • Restricted/no access: 0
+[2m2025-12-16T08:18:47.564162Z[0m [32m INFO[0m [2mct_scout::platforms::hackerone[0m[2m:[0m   • Empty scope: 17
+[2m2025-12-16T08:18:47.564164Z[0m [32m INFO[0m [2mct_scout::platforms::hackerone[0m[2m:[0m ─────────────────────────────────────────────────────────────
+[2m2025-12-16T08:18:47.564169Z[0m [32m INFO[0m [2mct_scout[0m[2m:[0m Fetched 0 programs from HackerOne
+[2m2025-12-16T08:18:47.564192Z[0m [32m INFO[0m [2mct_scout::platforms::intigriti[0m[2m:[0m Fetching programs from Intigriti (filter: following, max: 75)
+[2m2025-12-16T08:18:47.763445Z[0m [32m INFO[0m [2mct_scout::platforms::intigriti[0m[2m:[0m Found 4 total programs on Intigriti (filter: following)
+[2m2025-12-16T08:18:47.763495Z[0m [32m INFO[0m [2mct_scout::platforms::intigriti[0m[2m:[0m Intigriti: 4 programs to process (filter: following)
+[2m2025-12-16T08:18:47.763500Z[0m [32m INFO[0m [2mct_scout::platforms::intigriti[0m[2m:[0m Fetching scope details for each program...
+[2m2025-12-16T08:18:47.763503Z[0m [32m INFO[0m [2mct_scout::platforms::intigriti[0m[2m:[0m Note: 403 FORBID001 errors are expected for programs you're not enrolled in or that are restricted
+[2m2025-12-16T08:18:48.336215Z[0m [32m INFO[0m [2mct_scout::platforms::intigriti[0m[2m:[0m ─────────────────────────────────────────────────────────────
+[2m2025-12-16T08:18:48.336266Z[0m [32m INFO[0m [2mct_scout::platforms::intigriti[0m[2m:[0m Intigriti sync complete: 0 accessible programs with domains (out of 4 total)
+[2m2025-12-16T08:18:48.336293Z[0m [32m INFO[0m [2mct_scout::platforms::intigriti[0m[2m:[0m   • Accessible with domains: 0
+[2m2025-12-16T08:18:48.336296Z[0m [32m INFO[0m [2mct_scout::platforms::intigriti[0m[2m:[0m   • Restricted/not enrolled: 0
+[2m2025-12-16T08:18:48.336298Z[0m [32m INFO[0m [2mct_scout::platforms::intigriti[0m[2m:[0m   • Empty scope: 4
+[2m2025-12-16T08:18:48.336301Z[0m [32m INFO[0m [2mct_scout::platforms::intigriti[0m[2m:[0m ─────────────────────────────────────────────────────────────
+[2m2025-12-16T08:18:48.336305Z[0m [32m INFO[0m [2mct_scout[0m[2m:[0m Fetched 0 programs from Intigriti
+[2m2025-12-16T08:18:48.336323Z[0m [32m INFO[0m [2mct_scout[0m[2m:[0m Platform sync complete. Total programs: 3
+[2m2025-12-16T08:18:48.336327Z[0m [32m INFO[0m [2mct_scout[0m[2m:[0m Exporting current scope to TOML format...
+[watchlist]
+domains = ["*.toolsforhumanity.com", "*.spapp.zabka.pl", "*.inspectorio.com", "*.world.org", "*.worldcoin.org", "*.zabka.pl", "*.socialdeal.nl"]
+hosts = []
+ips = []
+cidrs = []
+
+[[programs]]
+name = "Hilton"
+domains = [".hilton.com", ".hilton.io"]
+hosts = []
+ips = []
+cidrs = ["203.79.37.2/29", "192.251.125.0/24", "192.251.124.0/24", "62.216.152.46/29", "192.251.123.0/24", "192.251.126.0/24", "82.196.42.196/28", "121.200.237.36/29", "167.187.0.0/16"]
+
+[[programs]]
+name = "IBM"
+domains = [".ibm.com"]
+hosts = []
+ips = []
+cidrs = []
+
+[[programs]]
+name = "Inspectorio"
+domains = []
+hosts = ["rise.stg.inspectorio.com", "rise-api.stg.inspectorio.com", "report-html-sight.stg.inspectorio.com", "id.stg.inspectorio.com", "files-stg.inspectorio.com", "docuflow.stg.inspectorio.com", "app.stg.inspectorio.com", "api.stg.inspectorio.com"]
+ips = []
+cidrs = []
+
+
+[2m2025-12-16T08:18:48.336376Z[0m [32m INFO[0m [2mct_scout[0m[2m:[0m Export complete. Exiting.

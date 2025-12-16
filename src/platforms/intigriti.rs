@@ -178,15 +178,22 @@ impl IntigritiAPI {
                 for domain_obj in content_array {
                     // Check if domain is in scope via tier
                     // tier is an object: { id: number, value: string }
-                    // tier.id: 1 = high, 2 = medium, 3 = low, 4 = out of scope
+                    // Example: tier.id: 3 = "Tier 2", tier.id: 4 = "Tier 1", tier.id: 5 = "Out Of Scope"
                     let tier_id = domain_obj
                         .get("tier")
                         .and_then(|t| t.get("id"))
                         .and_then(|id| id.as_i64())
                         .unwrap_or(0);
 
-                    // Only include in-scope domains (tier 1-3)
-                    if tier_id > 0 && tier_id < 4 {
+                    let tier_value = domain_obj
+                        .get("tier")
+                        .and_then(|t| t.get("value"))
+                        .and_then(|v| v.as_str())
+                        .unwrap_or("");
+
+                    // Only include in-scope domains (tier.id < 5, i.e., not "Out Of Scope")
+                    // Tier 1-4 are all in-scope, Tier 5 is out of scope
+                    if tier_id > 0 && tier_id < 5 && tier_value != "Out Of Scope" {
                         let domain_type = domain_obj
                             .get("type")
                             .and_then(|t| t.get("value"))
@@ -199,7 +206,9 @@ impl IntigritiAPI {
                             .unwrap_or("");
 
                         // Extract domains from url and wildcard types
-                        if (domain_type == "url" || domain_type == "wildcard") && !endpoint.is_empty() {
+                        // Type values are capitalized: "Url", "Wildcard"
+                        if (domain_type.eq_ignore_ascii_case("url") || domain_type.eq_ignore_ascii_case("wildcard"))
+                            && !endpoint.is_empty() {
                             let domain = extract_domain(endpoint);
                             if !domain.is_empty() {
                                 domains.push(domain);

@@ -1,0 +1,8 @@
+[2025-13-03 15:26:18] [+] sm-public-eng-iam-7srckq.goldeneye.dev.cloud.ibm.com
+    Program: IBM
+[2025-13-03 15:26:46] [+] *.us-south.db2w.cloud.ibm.com
+    Program: IBM
+    All domains: *.us-south.db2w.cloud.ibm.com, *.private.us-south.db2w.cloud.ibm.com, *.us-east.db2w.cloud.ibm.com, *.private.us-east.db2w.cloud.ibm.com, *.services.dal.bluemix.net, us-south.db2w.cloud.ibm.com, private.us-south.db2w.cloud.ibm.com, us-east.db2w.cloud.ibm.com, private.us-east.db2w.cloud.ibm.com, services.dal.bluemix.net
+[2025-13-03 15:28:16] [+] private.runtime.dataplatform.cloud.ibm.com
+    Program: IBM
+    All domains: private.runtime.dataplatform.cloud.ibm.com, private.runtime.eu-gb.dataplatform.cloud.ibm.com, private.runtime.eu-de.dataplatform.cloud.ibm.com, private.runtime.jp-tok.dataplatform.cloud.ibm.com, private.wrun.dataplatform.cloud.ibm.com

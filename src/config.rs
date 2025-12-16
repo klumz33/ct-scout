@@ -31,6 +31,10 @@ pub struct CtLogConfig {
     pub include_all_logs: bool,
     #[serde(default = "default_include_pending")]
     pub include_pending: bool,  // Include pending logs (like gungnir)
+    #[serde(default = "default_dedupe")]
+    pub dedupe: bool,  // Enable certificate deduplication (default: true)
+    #[serde(default = "default_reconnect_delay")]
+    pub reconnect_delay_secs: u64,  // Delay before reconnecting to failed logs
 }
 
 fn default_poll_interval() -> u64 { 10 }
@@ -45,6 +49,8 @@ fn default_parse_precerts() -> bool { true }
 fn default_include_readonly_logs() -> bool { false }
 fn default_include_all_logs() -> bool { false }
 fn default_include_pending() -> bool { false }
+fn default_dedupe() -> bool { true }
+fn default_reconnect_delay() -> u64 { 30 }
 
 #[derive(Deserialize, Clone)]
 pub struct WebhookConfig {
@@ -87,6 +93,26 @@ pub struct ProgramConfig {
 #[derive(Debug, Deserialize)]
 pub struct LoggingConfig {
     pub level: String,
+}
+
+#[derive(Debug, Deserialize, Clone)]
+pub struct StatsConfig {
+    #[serde(default = "default_stats_enabled")]
+    pub enabled: bool,
+    #[serde(default = "default_stats_interval")]
+    pub interval_secs: u64,
+}
+
+fn default_stats_enabled() -> bool { false }
+fn default_stats_interval() -> u64 { 10 }
+
+impl Default for StatsConfig {
+    fn default() -> Self {
+        Self {
+            enabled: default_stats_enabled(),
+            interval_secs: default_stats_interval(),
+        }
+    }
 }
 
 #[derive(Deserialize, Clone)]
@@ -228,11 +254,17 @@ pub struct Config {
     pub database: DatabaseConfig,
     #[serde(default)]
     pub platforms: PlatformsConfig,
+    #[serde(default)]
+    pub stats: StatsConfig,
     pub logging: LoggingConfig,
     pub watchlist: WatchlistConfig,
     #[serde(default)]
     pub programs: Vec<ProgramConfig>,
+    #[serde(default = "default_watch_config")]
+    pub watch_config: bool,  // Watch config file for changes
 }
+
+fn default_watch_config() -> bool { false }
 
 impl Default for CtLogConfig {
     fn default() -> Self {
@@ -249,6 +281,8 @@ impl Default for CtLogConfig {
             include_readonly_logs: default_include_readonly_logs(),
             include_all_logs: default_include_all_logs(),
             include_pending: default_include_pending(),
+            dedupe: default_dedupe(),
+            reconnect_delay_secs: default_reconnect_delay(),
         }
     }
 }

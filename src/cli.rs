@@ -53,6 +53,10 @@ pub struct Cli {
     pub no_webhook: bool,
 
     // ===== Filtering & Matching =====
+    /// Enable certificate deduplication
+    #[arg(long = "dedupe")]
+    pub dedupe: bool,
+
     /// Disable certificate deduplication
     #[arg(long = "no-dedupe")]
     pub no_dedupe: bool,
@@ -70,6 +74,10 @@ pub struct Cli {
     /// Display statistics (msgs/min, total processed, matches found)
     #[arg(long = "stats")]
     pub stats: bool,
+
+    /// Disable statistics display even if enabled in config
+    #[arg(long = "no-stats")]
+    pub no_stats: bool,
 
     /// Stats update interval in seconds
     #[arg(long = "stats-interval", default_value = "10")]
@@ -130,6 +138,16 @@ impl Cli {
         // Verbose and quiet are mutually exclusive
         if self.verbose && self.quiet {
             anyhow::bail!("Cannot specify both --verbose and --quiet");
+        }
+
+        // Stats and no-stats are mutually exclusive
+        if self.stats && self.no_stats {
+            anyhow::bail!("Cannot specify both --stats and --no-stats");
+        }
+
+        // Dedupe and no-dedupe are mutually exclusive
+        if self.dedupe && self.no_dedupe {
+            anyhow::bail!("Cannot specify both --dedupe and --no-dedupe");
         }
 
         Ok(())

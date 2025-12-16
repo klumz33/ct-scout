@@ -11,6 +11,7 @@ use ct_scout::platforms::{FetchOptions, HackerOneAPI, IntigritiAPI, PlatformAPI}
 use ct_scout::progress::ProgressIndicator;
 use ct_scout::state::StateManager;
 use ct_scout::stats::StatsCollector;
+use ct_scout::watcher::ConfigWatcher;
 use ct_scout::watchlist::Watchlist;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
@@ -64,6 +65,33 @@ async fn main() -> anyhow::Result<()> {
         .init();
 
     tracing::info!("Starting ct-scout...");
+
+    // Start config file watcher if enabled
+    // Precedence: CLI flag overrides config
+    let watch_config_enabled = if cli.watch_config {
+        true
+    } else {
+        config.watch_config
+    };
+
+    if watch_config_enabled {
+        let config_path = PathBuf::from(&cli.config);
+        let watcher = ConfigWatcher::new(config_path.clone());
+        let mut config_rx = watcher.watch()?;
+
+        // Spawn task to handle config reloads
+        tokio::spawn(async move {
+            while let Some(new_config) = config_rx.recv().await {
+                tracing::info!("Config file changed detected! New configuration loaded.");
+                tracing::info!("Note: Dynamic config reload not yet implemented. Please restart ct-scout to apply changes.");
+                // TODO: Implement dynamic reload of watchlist and settings
+                // For now, just log that we detected the change
+                let _ = new_config; // Silence unused variable warning
+            }
+        });
+    } else {
+        tracing::debug!("Config file watching disabled");
+    }
 
     // Create watchlist
     let mut watchlist = Watchlist::from_config(&config.watchlist, &config.programs)?;
@@ -225,11 +253,20 @@ async fn main() -> anyhow::Result<()> {
     }
 
     // Create dedupe
-    let dedupe = if cli.no_dedupe {
+    // Precedence: CLI flags override config
+    let dedupe_enabled = if cli.no_dedupe {
+        false
+    } else if cli.dedupe {
+        true
+    } else {
+        config.ct_logs.dedupe
+    };
+
+    let dedupe = if dedupe_enabled {
+        Dedupe::new()
+    } else {
         tracing::info!("Deduplication disabled");
         Dedupe::new() // Still create it but won't use it effectively
-    } else {
-        Dedupe::new()
     };
 
     // Create stats collector
@@ -300,10 +337,26 @@ async fn main() -> anyhow::Result<()> {
     }
 
     // Start stats display background task if requested
-    if cli.stats {
+    // Precedence: CLI flags override config
+    let stats_enabled = if cli.no_stats {
+        false
+    } else if cli.stats {
+        true
+    } else {
+        config.stats.enabled
+    };
+
+    let stats_interval = if cli.stats_interval != 10 {
+        // CLI provided non-default value
+        cli.stats_interval
+    } else {
+        config.stats.interval_secs
+    };
+
+    if stats_enabled {
         let stats_clone = stats.clone();
         let progress_clone = progress.clone();
-        let interval = cli.stats_interval;
+        let interval = stats_interval;
 
         tokio::spawn(async move {
             loop {
@@ -436,7 +489,7 @@ async fn main() -> anyhow::Result<()> {
     state_manager.save().await?;
 
     // Print final stats if enabled
-    if cli.stats {
+    if stats_enabled {
         let snapshot = stats.snapshot();
         println!("\n\n📊 Final Statistics:");
         println!("  Total processed: {}", snapshot.total_processed);
