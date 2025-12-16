@@ -162,14 +162,20 @@ impl HackerOneAPI {
             .await
             .context("Failed to parse program details")?;
 
+        debug!("Program {}: Response has relationships: {}", handle, json["relationships"].is_object());
+        debug!("Program {}: Full response keys: {:?}", handle, json.as_object().map(|o| o.keys().collect::<Vec<_>>()));
+
         let mut domains = Vec::new();
 
         let mut other_type_count = 0;
         let mut url_wildcard_count = 0;
 
-        if let Some(relationships) = json["data"]["relationships"].as_object() {
+        if let Some(relationships) = json["relationships"].as_object() {
+            debug!("Program {}: Found relationships with keys: {:?}", handle, relationships.keys().collect::<Vec<_>>());
             if let Some(structured_scopes) = relationships.get("structured_scopes") {
+                debug!("Program {}: structured_scopes exists, has 'data': {}", handle, structured_scopes["data"].is_array());
                 if let Some(scopes) = structured_scopes["data"].as_array() {
+                    debug!("Program {}: Processing {} scope items", handle, scopes.len());
                     for scope in scopes {
                         // Only process in-scope items
                         if scope["attributes"]["eligible_for_submission"]
@@ -182,6 +188,8 @@ impl HackerOneAPI {
                             let asset_identifier = scope["attributes"]["asset_identifier"]
                                 .as_str()
                                 .unwrap_or("");
+
+                            debug!("Program {}: Found asset_type='{}', identifier='{}'", handle, asset_type, asset_identifier);
 
                             // Extract domains from URL, WILDCARD, and DOMAIN types
                             if asset_type == "URL" || asset_type == "WILDCARD" || asset_type == "DOMAIN" {
