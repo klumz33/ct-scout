@@ -1,21 +1,24 @@
 # CT-Scout Implementation Progress
 
-**Last Updated:** 2025-12-15
-**Current Version:** v2.0.0 (Phase 1 & 2 Complete)
+**Last Updated:** 2025-12-16
+**Current Version:** v2.1.0 (Phase 1, 2, & 2C Complete)
 **Status:** ✅ **PRODUCTION READY**
 
 ---
 
 ## 📊 Executive Summary
 
-ct-scout has successfully completed both Phase 1 (Core Infrastructure) and Phase 2 (Enterprise Features), transforming from a basic certstream client into a fully-featured, enterprise-ready Certificate Transparency monitoring platform.
+ct-scout has successfully completed Phase 1 (Core Infrastructure), Phase 2A/2B (Enterprise Features), and Phase 2C (Configuration & Platform Fixes), transforming from a basic certstream client into a fully-featured, enterprise-ready Certificate Transparency monitoring platform with comprehensive configuration options and working platform integrations.
 
 ### Key Achievements
 
 - ✅ **Direct CT Log Monitoring** - 187 CT logs supported (exceeds gungnir's 49-60)
 - ✅ **Zero External Dependencies** - No certstream-server-go required
 - ✅ **Database Integration** - PostgreSQL/Neon support for historical analysis
-- ✅ **Platform APIs** - HackerOne & Intigriti auto-sync
+- ✅ **Platform APIs** - HackerOne & Intigriti auto-sync with full pagination
+- ✅ **199+ Domains Synced** - 19 programs automatically monitored
+- ✅ **Complete Config System** - All CLI flags available in config file
+- ✅ **Config File Watching** - Live reload detection at INFO level
 - ✅ **Production Tested** - 36,804 msg/min throughput, 100% parse success rate
 - ✅ **100% Backward Compatible** - No breaking changes
 
@@ -434,6 +437,358 @@ pub trait PlatformAPI: Send + Sync {
 
 ---
 
+## ✅ PHASE 2C COMPLETE - Configuration & Platform Fixes
+
+**Status:** ✅ PRODUCTION READY
+**Completion Date:** 2025-12-16
+**Focus:** Configuration system enhancement and platform sync bug fixes
+
+### Phase 2C.1: Configuration System Enhancements ✅
+
+#### 2C.1.1 ✅ Config File Watching
+
+**Files:** `src/watcher.rs`, `src/main.rs`
+
+**Implemented:**
+- Integrated `ConfigWatcher` into main application
+- INFO-level logging when watcher starts: `Watching config file: "/path/to/config.toml"`
+- INFO-level logging when changes detected: `Config file changed detected! New configuration loaded.`
+- Can be enabled via `--watch-config` CLI flag OR `watch_config = true` in config
+- Uses `notify` crate for efficient file system monitoring
+- Debouncing to prevent multiple reloads (1-second minimum between reloads)
+- Graceful error handling
+
+**Config Option:**
+```toml
+watch_config = false  # Enable config file watching (default: false)
+```
+
+**CLI Flag:**
+```bash
+ct-scout --watch-config  # or -w
+```
+
+#### 2C.1.2 ✅ Stats Configuration
+
+**File:** `src/config.rs`
+
+**New Config Section:**
+```toml
+[stats]
+enabled = false        # Display statistics during execution (default: false)
+interval_secs = 10     # Stats update interval in seconds (default: 10)
+```
+
+**New CLI Flags:**
+- `--stats` - Enable statistics display (existing)
+- `--no-stats` - Disable statistics even if enabled in config (new)
+- Mutually exclusive flag validation
+
+**Features:**
+- Config-based stats control for production deployments
+- CLI override capability for temporary changes
+- Proper precedence: CLI flags > Config file > Defaults
+
+#### 2C.1.3 ✅ Deduplication Configuration
+
+**File:** `src/config.rs`
+
+**New Config Option:**
+```toml
+[ct_logs]
+dedupe = true  # Enable certificate deduplication (default: true)
+```
+
+**New CLI Flags:**
+- `--dedupe` - Explicitly enable deduplication (new)
+- `--no-dedupe` - Disable deduplication (existing)
+- Mutually exclusive flag validation
+
+**Features:**
+- Config-based dedupe control
+- CLI override capability
+- Proper precedence handling
+
+#### 2C.1.4 ✅ Reconnect Delay Configuration
+
+**File:** `src/config.rs`
+
+**New Config Option:**
+```toml
+[ct_logs]
+reconnect_delay_secs = 30  # Delay before reconnecting to failed logs (default: 30)
+```
+
+**Features:**
+- Configurable backoff timing for failed CT logs
+- Aligns with health tracking system
+- Production-tunable for different network conditions
+
+#### 2C.1.5 ✅ Configuration Precedence System
+
+**File:** `src/main.rs`
+
+**Implemented:**
+- Standard precedence pattern: **CLI flags > Config file > Hardcoded defaults**
+- Applied to all configurable options:
+  - Stats (enabled, interval)
+  - Deduplication
+  - Config watching
+  - Webhook settings (existing)
+  - Log level (existing)
+
+**Example Logic:**
+```rust
+let stats_enabled = if cli.no_stats {
+    false  // CLI override: disable
+} else if cli.stats {
+    true   // CLI override: enable
+} else {
+    config.stats.enabled  // Use config value
+};
+```
+
+### Phase 2C.2: Platform API Bug Fixes ✅
+
+#### 2C.2.1 ✅ HackerOne Pagination Fix
+
+**File:** `src/platforms/hackerone.rs`
+
+**Issue:** Only fetching first page of programs (25 out of 589 total)
+
+**Fixed:**
+- Implemented full pagination using `page[number]` and `page[size]` parameters
+- Maximum page size: 100 (HackerOne API limit)
+- Loop through all pages until `links.next` is null
+- Client-side filtering for bookmarked programs (no server-side API support)
+
+**Result:** Successfully fetches all 589 programs, filters to 17 bookmarked
+
+#### 2C.2.2 ✅ HackerOne Filtering Implementation
+
+**File:** `src/platforms/hackerone.rs`
+
+**Implemented:**
+- Added `filter` config option: "bookmarked" (default) or "all"
+- Added `max_programs` per-platform override
+- Client-side filtering on `bookmarked` attribute
+- Respects max_programs limit during filtering
+
+**Config:**
+```toml
+[platforms.hackerone]
+enabled = true
+username = "your-username"
+api_token = "your-token"
+filter = "bookmarked"      # "bookmarked" (default) or "all"
+max_programs = 50          # Optional: override global max
+```
+
+#### 2C.2.3 ✅ HackerOne Domain Extraction Fix
+
+**File:** `src/platforms/hackerone.rs`
+
+**Issues Fixed:**
+1. **JSON Path Error:** Using `json["data"]["relationships"]` instead of `json["relationships"]`
+   - HackerOne program detail endpoint returns flat structure
+2. **Missing DOMAIN Type:** Only checking "URL" and "WILDCARD", missing "DOMAIN" type
+   - Many programs (like Hilton) use "DOMAIN" type extensively
+
+**Fixed:**
+- Corrected JSON path to `json["relationships"]`
+- Added "DOMAIN" to accepted asset types
+- Added CIDR detection with debug logging
+- Added detailed debug logging for troubleshooting
+
+**Result:** Successfully extracts 186+ domains from 15 programs (was 0 before fix)
+
+**Example Success:**
+- Porsche: 109 domains extracted
+- Hilton: 8 domains extracted (including both .hilton.com and .hilton.io)
+- Remitly: 22 domains extracted
+
+#### 2C.2.4 ✅ Intigriti Pagination Fix
+
+**File:** `src/platforms/intigriti.rs`
+
+**Issue:** Only fetching first page of programs
+
+**Fixed:**
+- Implemented full pagination using `limit` and `offset` parameters
+- Maximum limit: 500 (Intigriti API limit)
+- Loop until `offset >= maxCount`
+- Server-side filtering using `following=true` query parameter
+
+**Result:** Successfully fetches all following programs
+
+#### 2C.2.5 ✅ Intigriti Filtering Implementation
+
+**File:** `src/platforms/intigriti.rs`
+
+**Implemented:**
+- Added `filter` config option: "following" (default) or "all"
+- Added `max_programs` per-platform override
+- Server-side filtering support (better than HackerOne's client-side)
+
+**Config:**
+```toml
+[platforms.intigriti]
+enabled = true
+api_token = "your-token"
+filter = "following"       # "following" (default) or "all"
+max_programs = 75          # Optional: override global max
+```
+
+#### 2C.2.6 ✅ Intigriti Tier Logic Fix
+
+**File:** `src/platforms/intigriti.rs`
+
+**Issue:** Using `tier_id < 4` which excluded Tier 1 (id=4) and Tier 2 (id=3)
+
+**API Tier Structure:**
+- Tier 1: id=4 (IN SCOPE, highest priority)
+- Tier 2: id=3 (IN SCOPE)
+- Out Of Scope: id=5 (SKIP)
+
+**Fixed:**
+- Changed condition to `tier_id < 5 && tier_value != "Out Of Scope"`
+- Now correctly includes both Tier 1 and Tier 2
+
+**Result:** Successfully extracts domains from in-scope tiers
+
+#### 2C.2.7 ✅ Intigriti Type Matching Fix
+
+**File:** `src/platforms/intigriti.rs`
+
+**Issue:** Case-sensitive comparison failing on "Url" and "Wildcard" (capitalized)
+
+**Fixed:**
+- Changed to case-insensitive comparison: `eq_ignore_ascii_case()`
+- Handles both "url"/"wildcard" and "Url"/"Wildcard"
+
+**Result:** Successfully extracts 13 domains from 3 Intigriti programs
+
+#### 2C.2.8 ✅ Dry-Run Mode
+
+**Files:** `src/cli.rs`, `src/main.rs`, `src/platforms/*.rs`
+
+**Implemented:**
+- `--dry-run-sync` CLI flag
+- Shows programs that would be synced without fetching scope details
+- Displays program names, handles, and filter status
+- Early exit after showing preview
+
+**Usage:**
+```bash
+ct-scout --dry-run-sync
+```
+
+**Output Example:**
+```
+Would sync: 'IBM' (@ibm) [bookmarked: true]
+Would sync: 'Hilton' (@hilton) [bookmarked: true]
+...
+DRY-RUN: Would attempt to fetch scope for 17 programs
+```
+
+#### 2C.2.9 ✅ Platform Sync Validation
+
+**Testing Results:**
+
+**HackerOne:**
+- ✅ Fetches 17 bookmarked programs from 589 total
+- ✅ Successfully extracts 186+ domains
+- ✅ Porsche: 109 domains
+- ✅ Hilton: 8 domains + 9 CIDR ranges
+- ✅ Remitly: 22 domains
+
+**Intigriti:**
+- ✅ Fetches 4 following programs
+- ✅ Successfully extracts 13 domains
+- ✅ Zabka: 2 domains
+- ✅ Social Deal: 4 domains
+- ✅ Cloudways: 7 domains
+
+**Combined:**
+- ✅ 19 total programs synced
+- ✅ 199+ unique domains added to watchlist
+- ✅ Zero configuration after API tokens added
+
+### Phase 2C.3: Configuration File Updates ✅
+
+#### Updated Config Structure
+
+**Complete Config Template:**
+```toml
+[ct_logs]
+poll_interval_secs = 10
+batch_size = 256
+state_backend = "file"  # or "database"
+state_file = "ct-scout-state.toml"
+max_concurrent_logs = 100
+parse_precerts = true
+include_readonly_logs = false
+include_pending = false
+include_all_logs = false
+dedupe = true                    # NEW: Enable deduplication
+reconnect_delay_secs = 30        # NEW: Reconnect delay
+
+[stats]                          # NEW SECTION
+enabled = false                  # Enable stats display
+interval_secs = 10               # Stats update interval
+
+[database]
+enabled = false
+url = "postgresql://localhost/ctscout"
+max_connections = 20
+
+[webhook]
+url = "https://example.com/webhook"
+secret = "optional-secret"
+timeout_secs = 5
+
+[platforms]
+sync_interval_hours = 6
+max_programs_per_platform = 100
+
+[platforms.hackerone]
+enabled = false
+username = "your-username"
+api_token = "your-token"
+filter = "bookmarked"            # "bookmarked" or "all"
+max_programs = 50                # Optional override
+
+[platforms.intigriti]
+enabled = false
+api_token = "your-token"
+filter = "following"             # "following" or "all"
+max_programs = 75                # Optional override
+
+[logging]
+level = "info"
+
+[watchlist]
+domains = []
+hosts = []
+ips = []
+cidrs = []
+
+watch_config = false             # NEW: Enable config watching
+```
+
+#### Updated ms_conf_db.toml ✅
+
+**File:** `ms_conf_db.toml`
+
+**Changes:**
+- Added `dedupe = true` to `[ct_logs]`
+- Added `reconnect_delay_secs = 30` to `[ct_logs]`
+- Added `[stats]` section with `enabled` and `interval_secs`
+- Added `watch_config = false` at root level
+- All fields documented with comments
+
+---
+
 ## 🎯 Current Capabilities
 
 ### Performance Metrics
@@ -472,11 +827,22 @@ pub trait PlatformAPI: Send + Sync {
 - ✅ Historical match storage
 - ✅ Advanced query capabilities
 - ✅ Multi-instance support (shared database)
-- ✅ HackerOne API integration
-- ✅ Intigriti API integration
-- ✅ Automatic watchlist synchronization
+- ✅ HackerOne API integration (full pagination, filtering, domain extraction)
+- ✅ Intigriti API integration (full pagination, filtering, tier logic)
+- ✅ Automatic watchlist synchronization (199+ domains from 19 programs)
 - ✅ Zero-configuration automation
 - ✅ Connection testing and validation
+
+#### Configuration Features (Phase 2C)
+- ✅ Config file watching with live reload detection
+- ✅ Comprehensive config options for all CLI flags
+- ✅ Stats display configuration (enabled, interval)
+- ✅ Deduplication configuration
+- ✅ Reconnect delay configuration
+- ✅ Standard precedence: CLI > Config > Defaults
+- ✅ Dry-run mode for platform sync preview
+- ✅ Per-platform filtering (bookmarked/following/all)
+- ✅ Per-platform max_programs override
 
 ### Configuration Options
 
@@ -720,19 +1086,21 @@ ct-scout 2.0.0
 
 - **v0.1.0** (Initial) - Basic certstream client
 - **v1.0.0** (Phase 1) - Direct CT log monitoring
-- **v2.0.0** (Phase 2) - Database & Platform integration ← **Current**
+- **v2.0.0** (Phase 2) - Database & Platform integration
+- **v2.1.0** (Phase 2C) - Configuration enhancements & Platform fixes ← **Current**
 
 ---
 
 ## ✅ Summary
 
-**ct-scout v2.0.0 is COMPLETE and PRODUCTION READY!**
+**ct-scout v2.1.0 is COMPLETE and PRODUCTION READY!**
 
 ### What's Working
 
 ✅ All Phase 1 features (direct CT log monitoring)
 ✅ All Phase 2A features (database integration)
 ✅ All Phase 2B features (platform APIs)
+✅ All Phase 2C features (configuration enhancements & platform fixes)
 ✅ Comprehensive documentation
 ✅ Production-tested and verified
 ✅ Published on GitHub
@@ -748,6 +1116,6 @@ ct-scout 2.0.0
 ---
 
 **Repository:** https://github.com/klumz33/ct-scout
-**Version:** 2.0.0
+**Version:** 2.1.0
 **License:** MIT
 **Status:** Production Ready 🚀
