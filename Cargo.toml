@@ -1,6 +1,6 @@
 [package]
 name = "ct-scout"
-version = "2.1.0"
+version = "3.0.0"
 edition = "2024"
 authors = ["ct-scout contributors"]
 description = "High-performance Certificate Transparency log monitor for bug bounty hunting"
@@ -63,6 +63,9 @@ is-terminal = "0.4"
 
 # Database
 sqlx = { version = "0.8.6", features = ["runtime-tokio-rustls", "postgres", "migrate"] }
+
+# Redis Pub/Sub
+redis = { version = "0.27", features = ["tokio-comp", "connection-manager"] }
 
 [dev-dependencies]
 tempfile = "3"

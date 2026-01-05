@@ -6,8 +6,9 @@ use ct_scout::ct_log::{CtLogCoordinator, LogListFetcher};
 use ct_scout::database::{DatabaseBackend, PostgresBackend};
 use ct_scout::dedupe::Dedupe;
 use ct_scout::filter::RootDomainFilter;
-use ct_scout::output::{csv, human, json, silent, webhook, OutputManager};
-use ct_scout::platforms::{FetchOptions, HackerOneAPI, IntigritiAPI, PlatformAPI};
+use ct_scout::output::{self, csv, human, json, silent, webhook, OutputManager};
+use ct_scout::platforms::{HackerOneAPI, IntigritiAPI, PlatformAPI, PlatformSyncManager};
+use ct_scout::redis_publisher;
 use ct_scout::progress::ProgressIndicator;
 use ct_scout::state::StateManager;
 use ct_scout::stats::StatsCollector;
@@ -16,6 +17,7 @@ use ct_scout::watchlist::Watchlist;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use std::time::Duration;
+use tokio::sync::Mutex;
 use tracing_subscriber::EnvFilter;
 
 #[tokio::main]
@@ -93,8 +95,8 @@ async fn main() -> anyhow::Result<()> {
         tracing::debug!("Config file watching disabled");
     }
 
-    // Create watchlist
-    let mut watchlist = Watchlist::from_config(&config.watchlist, &config.programs)?;
+    // Create watchlist wrapped in Arc<Mutex<>> for sharing with background tasks
+    let watchlist = Arc::new(Mutex::new(Watchlist::from_config(&config.watchlist, &config.programs)?));
     tracing::info!(
         "Loaded watchlist: {} domains, {} hosts, {} IPs, {} CIDRs",
         config.watchlist.domains.len(),
@@ -103,11 +105,14 @@ async fn main() -> anyhow::Result<()> {
         config.watchlist.cidrs.len()
     );
 
-    // Sync with bug bounty platforms if configured
+    // Initialize and spawn platform sync manager if configured
+    let (platform_shutdown_tx, platform_shutdown_rx) = tokio::sync::watch::channel(false);
+    let mut platform_sync_handle = None;
+
     if config.platforms.hackerone.as_ref().map(|h| h.enabled).unwrap_or(false)
         || config.platforms.intigriti.as_ref().map(|i| i.enabled).unwrap_or(false)
     {
-        tracing::info!("Platform API integration enabled, syncing watchlist...");
+        tracing::info!("Platform API integration enabled, initializing sync manager...");
 
         let mut platforms: Vec<Box<dyn PlatformAPI>> = Vec::new();
 
@@ -158,95 +163,32 @@ async fn main() -> anyhow::Result<()> {
             }
         }
 
-        // Determine fetch options for each platform
-        let h1_options = if let Some(h1_config) = &config.platforms.hackerone {
-            if h1_config.enabled {
-                Some(FetchOptions {
-                    filter: h1_config.filter.clone(),
-                    max_programs: h1_config.max_programs.unwrap_or(config.platforms.max_programs_per_platform),
-                    dry_run: cli.dry_run_sync,
-                })
-            } else {
-                None
-            }
-        } else {
-            None
-        };
+        if !platforms.is_empty() {
+            // Create platform sync manager
+            let sync_manager = PlatformSyncManager::new(
+                platforms,
+                watchlist.clone(),
+                config.platforms.sync_interval_hours,
+            );
 
-        let intigriti_options = if let Some(intigriti_config) = &config.platforms.intigriti {
-            if intigriti_config.enabled {
-                Some(FetchOptions {
-                    filter: intigriti_config.filter.clone(),
-                    max_programs: intigriti_config.max_programs.unwrap_or(config.platforms.max_programs_per_platform),
-                    dry_run: cli.dry_run_sync,
-                })
-            } else {
-                None
-            }
-        } else {
-            None
-        };
+            // Spawn platform sync manager as background task
+            let shutdown_rx_clone = platform_shutdown_rx.clone();
+            platform_sync_handle = Some(tokio::spawn(async move {
+                sync_manager.run(shutdown_rx_clone).await;
+            }));
 
-        // Sync programs from platforms
-        for platform in platforms {
-            // Determine which options to use for this platform
-            let options = if platform.name() == "HackerOne" {
-                h1_options.clone()
-            } else if platform.name() == "Intigriti" {
-                intigriti_options.clone()
-            } else {
-                None
-            };
-
-            let options = options.unwrap_or(FetchOptions {
-                filter: "all".to_string(),
-                max_programs: config.platforms.max_programs_per_platform,
-                dry_run: cli.dry_run_sync,
-            });
-
-            match platform.fetch_programs_with_options(options).await {
-                Ok(programs) => {
-                    tracing::info!(
-                        "Fetched {} programs from {}",
-                        programs.len(),
-                        platform.name()
-                    );
-
-                    for program in programs {
-                        for domain in program.domains {
-                            watchlist.add_domain_to_program(&domain, &program.name);
-                        }
-                        for host in program.hosts {
-                            watchlist.add_host_to_program(&host, &program.name);
-                        }
-                    }
-                }
-                Err(e) => {
-                    tracing::error!(
-                        "Failed to fetch programs from {}: {:?}",
-                        platform.name(),
-                        e
-                    );
-                }
-            }
-        }
-
-        tracing::info!(
-            "Platform sync complete. Total programs: {}",
-            watchlist.programs().len()
-        );
-
-        // If dry-run mode, exit after showing what would be synced
-        if cli.dry_run_sync {
-            tracing::info!("Dry-run complete. Exiting.");
-            return Ok(());
+            tracing::info!(
+                "Platform sync manager started (sync interval: {} hours)",
+                config.platforms.sync_interval_hours
+            );
         }
     }
 
     // Handle --export-scope flag
     if cli.export_scope {
         tracing::info!("Exporting current scope to TOML format...");
-        let toml_output = watchlist.export_to_toml();
+        let watchlist_guard = watchlist.lock().await;
+        let toml_output = watchlist_guard.export_to_toml();
         println!("{}", toml_output);
         tracing::info!("Export complete. Exiting.");
         return Ok(());
@@ -334,6 +276,36 @@ async fn main() -> anyhow::Result<()> {
         }
     } else {
         tracing::info!("Webhooks disabled");
+    }
+
+    // Add Redis pub/sub handler if configured
+    if config.redis.enabled {
+        tracing::info!("Initializing Redis publisher...");
+        let redis_config = redis_publisher::RedisConfig {
+            url: config.redis.url.clone(),
+            token: config.redis.token.clone(),
+            channel: config.redis.channel.clone(),
+            queue_name: config.redis.queue_name.clone(),
+            max_queue_size: config.redis.max_queue_size,
+        };
+
+        let redis_pub = Arc::new(redis_publisher::RedisPublisher::new(redis_config));
+
+        // Try to connect to Redis
+        match redis_pub.connect().await {
+            Ok(_) => {
+                output_manager.add_handler(Arc::new(output::redis::RedisOutput::new(
+                    redis_pub.clone(),
+                )));
+                tracing::info!("Redis publisher enabled: channel={}", config.redis.channel);
+            }
+            Err(e) => {
+                tracing::error!("Failed to connect to Redis: {}", e);
+                tracing::warn!("Continuing without Redis publishing");
+            }
+        }
+    } else {
+        tracing::debug!("Redis publishing disabled");
     }
 
     // Start stats display background task if requested
@@ -483,6 +455,13 @@ async fn main() -> anyhow::Result<()> {
         progress.clone(),
         root_filter,
     ).await;
+
+    // Shutdown platform sync manager if it was running
+    if let Some(handle) = platform_sync_handle {
+        tracing::info!("Shutting down platform sync manager...");
+        platform_shutdown_tx.send(true).ok();
+        handle.await.ok();
+    }
 
     // Save final state
     tracing::info!("Saving final state...");

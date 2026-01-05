@@ -92,7 +92,7 @@ impl CtLogCoordinator {
     /// Run the coordinator - processes certificates from all monitors
     pub async fn run(
         mut self,
-        watchlist: Watchlist,
+        watchlist: Arc<tokio::sync::Mutex<Watchlist>>,
         output_manager: OutputManager,
         dedupe: Dedupe,
         stats: StatsCollector,
@@ -144,7 +144,7 @@ impl CtLogCoordinator {
     async fn handle_cert_entry(
         &self,
         data: &CertData,
-        watchlist: &Watchlist,
+        watchlist: &Arc<tokio::sync::Mutex<Watchlist>>,
         output_manager: &OutputManager,
         dedupe: &Dedupe,
         stats: &StatsCollector,
@@ -161,8 +161,11 @@ impl CtLogCoordinator {
             _ => return,
         };
 
+        // Lock watchlist once for all domains
+        let watchlist_guard = watchlist.lock().await;
+
         for d in domains {
-            if watchlist.matches_domain(d) {
+            if watchlist_guard.matches_domain(d) {
                 // Apply root domain filter if specified
                 if let Some(filter) = root_filter {
                     if !filter.should_emit(d) {
@@ -172,7 +175,7 @@ impl CtLogCoordinator {
 
                 stats.increment_matches();
 
-                let program = watchlist.program_for_domain(d);
+                let program = watchlist_guard.program_for_domain(d);
                 let program_name = program.map(|p| p.name.clone());
 
                 // Create match result

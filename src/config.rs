@@ -172,6 +172,49 @@ impl Default for DatabaseConfig {
     }
 }
 
+#[derive(Deserialize, Clone)]
+pub struct RedisConfig {
+    #[serde(default = "default_redis_enabled")]
+    pub enabled: bool,
+    #[serde(default = "default_redis_url")]
+    pub url: String,
+    pub token: Option<String>,
+    #[serde(default = "default_redis_channel")]
+    pub channel: String,
+    pub queue_name: Option<String>,
+    pub max_queue_size: Option<i64>,
+}
+
+impl fmt::Debug for RedisConfig {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("RedisConfig")
+            .field("enabled", &self.enabled)
+            .field("url", &self.url)
+            .field("token", &self.token.as_ref().map(|_| "***REDACTED***"))
+            .field("channel", &self.channel)
+            .field("queue_name", &self.queue_name)
+            .field("max_queue_size", &self.max_queue_size)
+            .finish()
+    }
+}
+
+fn default_redis_enabled() -> bool { false }
+fn default_redis_url() -> String { "redis://localhost:6379".to_string() }
+fn default_redis_channel() -> String { "bb:ct_events".to_string() }
+
+impl Default for RedisConfig {
+    fn default() -> Self {
+        Self {
+            enabled: default_redis_enabled(),
+            url: default_redis_url(),
+            token: None,
+            channel: default_redis_channel(),
+            queue_name: Some("bb:ct_events_queue".to_string()),
+            max_queue_size: Some(10000),
+        }
+    }
+}
+
 #[derive(Debug, Deserialize, Clone)]
 pub struct PlatformsConfig {
     #[serde(default)]
@@ -252,6 +295,8 @@ pub struct Config {
     pub webhook: Option<WebhookConfig>,
     #[serde(default)]
     pub database: DatabaseConfig,
+    #[serde(default)]
+    pub redis: RedisConfig,
     #[serde(default)]
     pub platforms: PlatformsConfig,
     #[serde(default)]

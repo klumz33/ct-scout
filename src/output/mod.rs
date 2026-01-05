@@ -11,6 +11,7 @@ use std::sync::Arc;
 pub mod csv;
 pub mod human;
 pub mod json;
+pub mod redis;
 pub mod silent;
 pub mod webhook;
 

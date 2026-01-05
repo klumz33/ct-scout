@@ -33,29 +33,14 @@ impl HumanOutput {
 
     /// Format a timestamp as human-readable string
     fn format_timestamp(ts: u64) -> String {
-        use std::time::UNIX_EPOCH;
-        let duration = std::time::Duration::from_secs(ts);
-        let datetime = UNIX_EPOCH + duration;
+        use chrono::DateTime;
 
-        // Simple format: YYYY-MM-DD HH:MM:SS
-        if let Ok(duration_since_epoch) = datetime.duration_since(UNIX_EPOCH) {
-            let secs = duration_since_epoch.as_secs();
-            let days = secs / 86400;
-            let hours = (secs % 86400) / 3600;
-            let minutes = (secs % 3600) / 60;
-            let seconds = secs % 60;
-
-            // Rough conversion (doesn't account for leap years, but good enough for display)
-            let years = 1970 + days / 365;
-            let remaining_days = days % 365;
-            let months = remaining_days / 30;
-            let day = remaining_days % 30;
-
-            format!(
-                "{:04}-{:02}-{:02} {:02}:{:02}:{:02}",
-                years, months + 1, day + 1, hours, minutes, seconds
-            )
+        // Convert Unix timestamp to DateTime
+        if let Some(datetime) = DateTime::from_timestamp(ts as i64, 0) {
+            // Format as YYYY-MM-DD HH:MM:SS UTC
+            datetime.format("%Y-%m-%d %H:%M:%S").to_string()
         } else {
+            // Fallback if timestamp is invalid
             format!("{}", ts)
         }
     }

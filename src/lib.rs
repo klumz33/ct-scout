@@ -11,6 +11,7 @@ pub mod notifier;
 pub mod output;
 pub mod platforms;
 pub mod progress;
+pub mod redis_publisher;
 pub mod state;
 pub mod stats;
 pub mod types;
