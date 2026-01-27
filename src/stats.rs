@@ -1,6 +1,7 @@
 // src/stats.rs
 //! Statistics tracking for ct-scout
 
+use crate::metrics::{CERTIFICATES_PROCESSED_TOTAL, MATCHES_FOUND_TOTAL};
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::Arc;
 use std::time::Instant;
@@ -35,11 +36,13 @@ impl StatsCollector {
     /// Increment the count of processed certificates
     pub fn increment_processed(&self) {
         self.total_processed.fetch_add(1, Ordering::Relaxed);
+        CERTIFICATES_PROCESSED_TOTAL.inc();
     }
 
     /// Increment the count of matched certificates
     pub fn increment_matches(&self) {
         self.matches_found.fetch_add(1, Ordering::Relaxed);
+        MATCHES_FOUND_TOTAL.inc();
     }
 
     /// Get current statistics snapshot

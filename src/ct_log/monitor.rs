@@ -189,7 +189,10 @@ impl LogMonitor {
                     not_before: parsed_cert.not_before,
                     not_after: parsed_cert.not_after,
                     fingerprint: Some(parsed_cert.fingerprint),
+                    issuer: parsed_cert.issuer,
                 }),
+                is_precert: parsed_cert.is_precert,
+                ct_log_url: Some(self.log_url.clone()),
             };
 
             // Send to processing pipeline

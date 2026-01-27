@@ -115,6 +115,29 @@ impl Default for StatsConfig {
     }
 }
 
+#[derive(Debug, Deserialize, Clone)]
+pub struct MetricsConfig {
+    #[serde(default = "default_metrics_enabled")]
+    pub enabled: bool,
+    #[serde(default)]
+    pub export_path: Option<String>,
+    #[serde(default = "default_metrics_export_interval")]
+    pub export_interval_secs: u64,
+}
+
+fn default_metrics_enabled() -> bool { false }
+fn default_metrics_export_interval() -> u64 { 60 }
+
+impl Default for MetricsConfig {
+    fn default() -> Self {
+        Self {
+            enabled: default_metrics_enabled(),
+            export_path: None,
+            export_interval_secs: default_metrics_export_interval(),
+        }
+    }
+}
+
 #[derive(Deserialize, Clone)]
 pub struct DatabaseConfig {
     pub enabled: bool,
@@ -183,6 +206,8 @@ pub struct RedisConfig {
     pub channel: String,
     pub queue_name: Option<String>,
     pub max_queue_size: Option<i64>,
+    #[serde(default = "default_redis_require")]
+    pub require: bool,
 }
 
 impl fmt::Debug for RedisConfig {
@@ -194,6 +219,7 @@ impl fmt::Debug for RedisConfig {
             .field("channel", &self.channel)
             .field("queue_name", &self.queue_name)
             .field("max_queue_size", &self.max_queue_size)
+            .field("require", &self.require)
             .finish()
     }
 }
@@ -201,6 +227,7 @@ impl fmt::Debug for RedisConfig {
 fn default_redis_enabled() -> bool { false }
 fn default_redis_url() -> String { "redis://localhost:6379".to_string() }
 fn default_redis_channel() -> String { "bb:ct_events".to_string() }
+fn default_redis_require() -> bool { false }
 
 impl Default for RedisConfig {
     fn default() -> Self {
@@ -211,6 +238,7 @@ impl Default for RedisConfig {
             channel: default_redis_channel(),
             queue_name: Some("bb:ct_events_queue".to_string()),
             max_queue_size: Some(10000),
+            require: default_redis_require(),
         }
     }
 }
@@ -301,6 +329,8 @@ pub struct Config {
     pub platforms: PlatformsConfig,
     #[serde(default)]
     pub stats: StatsConfig,
+    #[serde(default)]
+    pub metrics: MetricsConfig,
     pub logging: LoggingConfig,
     pub watchlist: WatchlistConfig,
     #[serde(default)]

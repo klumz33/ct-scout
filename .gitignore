@@ -3,6 +3,15 @@
 **/*.rs.bk
 *.pdb
 
+# Configuration files with credentials (keep .example files)
+ms_conf_db.toml
+config-local.toml
+*.toml
+!config.toml
+!config-with-database.toml
+!*.toml.example
+!tests/*.toml
+
 # State files (user-specific)
 *-state.toml
 ct-scout-state*.toml

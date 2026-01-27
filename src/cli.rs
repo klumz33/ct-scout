@@ -52,6 +52,14 @@ pub struct Cli {
     #[arg(long = "no-webhook")]
     pub no_webhook: bool,
 
+    /// Require Redis connection (fail startup if unavailable)
+    #[arg(long = "require-redis")]
+    pub require_redis: bool,
+
+    /// Allow startup even if Redis is unavailable (default)
+    #[arg(long = "no-require-redis")]
+    pub no_require_redis: bool,
+
     // ===== Filtering & Matching =====
     /// Enable certificate deduplication
     #[arg(long = "dedupe")]
@@ -148,6 +156,11 @@ impl Cli {
         // Dedupe and no-dedupe are mutually exclusive
         if self.dedupe && self.no_dedupe {
             anyhow::bail!("Cannot specify both --dedupe and --no-dedupe");
+        }
+
+        // Require-redis and no-require-redis are mutually exclusive
+        if self.require_redis && self.no_require_redis {
+            anyhow::bail!("Cannot specify both --require-redis and --no-require-redis");
         }
 
         Ok(())

@@ -1,0 +1,28 @@
+[watchlist]
+domains = ["*.toolsforhumanity.com", "*.spapp.zabka.pl", "*.inspectorio.com", "*.world.org", "*.worldcoin.org", "*.zabka.pl", "*.socialdeal.nl"]
+hosts = []
+ips = []
+cidrs = []
+
+[[programs]]
+name = "Hilton"
+domains = [".hilton.com", ".hilton.io"]
+hosts = []
+ips = []
+cidrs = ["203.79.37.2/29", "192.251.125.0/24", "192.251.124.0/24", "62.216.152.46/29", "192.251.123.0/24", "192.251.126.0/24", "82.196.42.196/28", "121.200.237.36/29", "167.187.0.0/16"]
+
+[[programs]]
+name = "IBM"
+domains = [".ibm.com"]
+hosts = []
+ips = []
+cidrs = []
+
+[[programs]]
+name = "Inspectorio"
+domains = []
+hosts = ["rise.stg.inspectorio.com", "rise-api.stg.inspectorio.com", "report-html-sight.stg.inspectorio.com", "id.stg.inspectorio.com", "files-stg.inspectorio.com", "docuflow.stg.inspectorio.com", "app.stg.inspectorio.com", "api.stg.inspectorio.com"]
+ips = []
+cidrs = []
+
+

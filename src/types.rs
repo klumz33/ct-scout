@@ -20,6 +20,12 @@ pub struct CertData {
 
     #[serde(rename = "leaf_cert")]
     pub leaf_cert: Option<LeafCert>,
+
+    #[serde(default)]
+    pub is_precert: bool,
+
+    #[serde(rename = "ct_log")]
+    pub ct_log_url: Option<String>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -29,6 +35,7 @@ pub struct LeafCert {
     #[serde(rename = "not_after")]
     pub not_after: Option<u64>,
     pub fingerprint: Option<String>,
+    pub issuer: Option<String>,
 }
 
 /// Represents a matched certificate for output
@@ -58,8 +65,20 @@ pub struct MatchResult {
     /// Bug bounty program name (if matched)
     pub program_name: Option<String>,
 
+    /// Platform the program belongs to (if matched)
+    pub platform: Option<String>,
+
     /// Unix timestamp when the cert was seen
     pub seen_unix: Option<f64>,
+
+    /// Certificate issuer
+    pub issuer: Option<String>,
+
+    /// Whether this is a precertificate
+    pub is_precert: bool,
+
+    /// CT log URL where this cert was found
+    pub ct_log_url: Option<String>,
 }
 
 impl MatchResult {
@@ -68,12 +87,13 @@ impl MatchResult {
         matched_domain: String,
         data: &CertData,
         program_name: Option<String>,
+        platform: Option<String>,
     ) -> Self {
-        let (not_before, not_after, fingerprint) = data
+        let (not_before, not_after, fingerprint, issuer) = data
             .leaf_cert
             .as_ref()
-            .map(|leaf| (leaf.not_before, leaf.not_after, leaf.fingerprint.clone()))
-            .unwrap_or((None, None, None));
+            .map(|leaf| (leaf.not_before, leaf.not_after, leaf.fingerprint.clone(), leaf.issuer.clone()))
+            .unwrap_or((None, None, None, None));
 
         Self {
             timestamp: std::time::SystemTime::now()
@@ -87,7 +107,11 @@ impl MatchResult {
             not_after,
             fingerprint,
             program_name,
+            platform,
             seen_unix: data.seen_unix,
+            issuer,
+            is_precert: data.is_precert,
+            ct_log_url: data.ct_log_url.clone(),
         }
     }
 }

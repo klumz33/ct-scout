@@ -24,6 +24,9 @@ pub struct Program {
     /// Platform handle (e.g., "company-name")
     pub handle: String,
 
+    /// Platform source (e.g., "HackerOne", "Intigriti", "Config")
+    pub platform: String,
+
     /// List of in-scope domains
     pub domains: Vec<String>,
 

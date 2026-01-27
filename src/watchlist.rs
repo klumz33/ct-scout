@@ -6,6 +6,7 @@ use std::net::IpAddr;
 #[derive(Debug, Clone)]
 pub struct Program {
     pub name: String,
+    pub platform: Option<String>, // e.g., "HackerOne", "Intigriti", "Config"
     pub domains: Vec<String>, // suffixes like ".hilton.com"
     pub hosts: Vec<String>,   // exact hostnames
     pub ips: Vec<IpAddr>,     // specific IP addresses
@@ -50,6 +51,7 @@ impl Watchlist {
                     .collect::<Result<Vec<_>, _>>()?;
                 Ok(Program {
                     name: p.name.clone(),
+                    platform: Some("Config".to_string()),
                     domains: p.domains.clone(),
                     hosts: p.hosts.clone(),
                     ips,
@@ -187,7 +189,7 @@ impl Watchlist {
     }
 
     /// Add a domain to a program, creating the program if it doesn't exist
-    pub fn add_domain_to_program(&mut self, domain: &str, program_name: &str) {
+    pub fn add_domain_to_program(&mut self, domain: &str, program_name: &str, platform: Option<String>) {
         if let Some(program) = self.programs.iter_mut().find(|p| p.name == program_name) {
             if !program.domains.contains(&domain.to_string()) {
                 program.domains.push(domain.to_string());
@@ -195,6 +197,7 @@ impl Watchlist {
         } else {
             self.programs.push(Program {
                 name: program_name.to_string(),
+                platform,
                 domains: vec![domain.to_string()],
                 hosts: Vec::new(),
                 ips: Vec::new(),
@@ -204,7 +207,7 @@ impl Watchlist {
     }
 
     /// Add a host to a program, creating the program if it doesn't exist
-    pub fn add_host_to_program(&mut self, host: &str, program_name: &str) {
+    pub fn add_host_to_program(&mut self, host: &str, program_name: &str, platform: Option<String>) {
         if let Some(program) = self.programs.iter_mut().find(|p| p.name == program_name) {
             if !program.hosts.contains(&host.to_string()) {
                 program.hosts.push(host.to_string());
@@ -212,6 +215,7 @@ impl Watchlist {
         } else {
             self.programs.push(Program {
                 name: program_name.to_string(),
+                platform,
                 domains: Vec::new(),
                 hosts: vec![host.to_string()],
                 ips: Vec::new(),
@@ -246,6 +250,12 @@ impl Watchlist {
         for program in &self.programs {
             output.push_str("[[programs]]\n");
             output.push_str(&format!("name = \"{}\"\n", program.name));
+
+            // Add platform field if present
+            if let Some(ref platform) = program.platform {
+                output.push_str(&format!("platform = \"{}\"\n", platform));
+            }
+
             output.push_str(&format!("domains = {:?}\n", program.domains));
             output.push_str(&format!("hosts = {:?}\n", program.hosts));
 
@@ -304,12 +314,16 @@ mod tests {
             ProgramConfig {
                 name: "IBM".to_string(),
                 domains: vec![".ibm.com".to_string()],
+                hosts: vec![],
                 cidrs: vec![],
+                ips: vec![],
             },
             ProgramConfig {
                 name: "Hilton".to_string(),
                 domains: vec![".hilton.com".to_string(), ".hilton.io".to_string()],
+                hosts: vec![],
                 cidrs: vec!["192.251.125.0/24".to_string()],
+                ips: vec![],
             },
         ];
 
@@ -486,7 +500,7 @@ mod tests {
     #[test]
     fn test_add_domain_to_program() {
         let mut watchlist = Watchlist::default();
-        watchlist.add_domain_to_program("*.example.com", "Test Program");
+        watchlist.add_domain_to_program("*.example.com", "Test Program", Some("Test".to_string()));
 
         assert!(watchlist.matches_domain("sub.example.com"));
         assert!(watchlist.program_for_domain("sub.example.com").is_some());

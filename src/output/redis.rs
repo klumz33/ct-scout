@@ -31,9 +31,9 @@ impl OutputHandler for RedisOutput {
             result.not_after.unwrap_or(0) as i64,
             result.fingerprint.clone().unwrap_or_default(),
             result.program_name.clone(),
-            "unknown".to_string(), // CT log URL - could be added to MatchResult later
-            None,                   // Issuer - could be added to MatchResult later
-            false,                  // is_precert - could be added to MatchResult later
+            result.ct_log_url.clone().unwrap_or_else(|| "unknown".to_string()),
+            result.issuer.clone(),
+            result.is_precert,
         );
 
         // Publish with retry (fire and forget, don't block)
@@ -71,12 +71,15 @@ mod tests {
             cert_index: Some(123),
             seen_unix: Some(1234567890.0),
             leaf_cert: None,
+            is_precert: false,
+            ct_log_url: Some("https://ct.example.com/log".to_string()),
         };
 
         let result = MatchResult::from_cert_data(
             "test.com".to_string(),
             &cert_data,
             Some("Test Program".to_string()),
+            None,
         );
 
         // Should not fail even without Redis connection (fire and forget)

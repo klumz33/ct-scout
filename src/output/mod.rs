@@ -111,12 +111,15 @@ mod tests {
             cert_index: Some(123),
             seen_unix: Some(1234567890.0),
             leaf_cert: None,
+            is_precert: false,
+            ct_log_url: None,
         };
 
         MatchResult::from_cert_data(
             "test.com".to_string(),
             &cert_data,
             Some("Test Program".to_string()),
+            Some("TestPlatform".to_string()),
         )
     }
 }

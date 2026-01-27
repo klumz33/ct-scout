@@ -7,6 +7,7 @@ pub mod ct_log;
 pub mod database;
 pub mod dedupe;
 pub mod filter;
+pub mod metrics;
 pub mod notifier;
 pub mod output;
 pub mod platforms;

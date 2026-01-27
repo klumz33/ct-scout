@@ -1,0 +1,103 @@
+# CT Log Monitoring Configuration - EXAMPLE FILE
+# Copy this to ms_conf_db.toml and fill in your credentials
+
+[ct_logs]
+# Poll interval in seconds (default: 10)
+poll_interval_secs = 10
+
+# Number of entries to fetch per request (default: 256)
+batch_size = 256
+
+# CT log list URL (default: Google's list)
+log_list_url = "https://www.gstatic.com/ct/log_list/v3/all_logs_list.json"
+
+state_backend = "database"  # or "file" (default)
+#   state_backend = "file"  # or omit entirely
+# State file for tracking progress (default: ct-scout-state.toml)
+# state_file = "ms-ct-scout-state.toml"
+
+# Include all logs from the list - including rejected, etc.
+include_all_logs = true
+# Maximum number of logs to monitor concurrently (default: 100)
+max_concurrent_logs = 250
+parse_precerts = true
+
+# Enable certificate deduplication (default: true)
+dedupe = true
+
+# Delay in seconds before reconnecting to failed CT logs (default: 30)
+reconnect_delay_secs = 30
+
+# Optional: Specify custom CT logs instead of fetching from list
+# custom_logs = [
+#     "https://ct.googleapis.com/logs/argon2024/",
+#     "https://ct.cloudflare.com/logs/nimbus2024/"
+# ]
+
+[database]
+enabled = true
+url = "postgresql://user:password@host/database"  # Replace with your connection string
+max_connections = 20
+
+[webhook]
+url = "https://your-webhook-url.com/path"
+# secret = "your_webhook_secret"      # optional, can be empty or ommited
+timeout_secs = 10
+
+# ===== Redis Pub/Sub (RECOMMENDED - Primary Output Method) =====
+[redis]
+enabled = true
+url = "redis://localhost:6379"  # Or rediss:// for TLS (Upstash)
+# token = "your-upstash-token"  # For Upstash/TLS - token will be inserted into URL
+channel = "bb:ct_events"
+queue_name = "bb:ct_events_queue"
+max_queue_size = 10000
+require = true            # Fail startup if Redis unavailable
+
+# ===== Prometheus Metrics (Optional) =====
+[metrics]
+enabled = false
+# export_path = ""
+export_interval_secs = 60
+
+[platforms]
+sync_interval_hours = 6
+max_programs_per_platform = 100
+
+[platforms.hackerone]
+enabled = true
+username = "your_h1_username"
+api_token = "your_h1_api_token"
+filter = "bookmarked"      # "bookmarked" or "all"
+max_programs = 50
+
+[platforms.intigriti]
+enabled = true
+api_token = "your_intigriti_api_token"
+filter = "following"       # "following" or "all"
+max_programs = 75
+
+[stats]
+enabled = false
+interval_secs = 10
+
+[logging]
+level = "warning"
+
+[watchlist]
+domains = [
+    "*.example.com",
+]
+
+hosts = []
+ips = []
+cidrs = []
+
+watch_config = false
+
+[[programs]]
+name = "Example Program"
+domains = [".example.com"]
+hosts = []
+ips = []
+cidrs = []

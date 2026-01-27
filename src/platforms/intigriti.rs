@@ -14,11 +14,13 @@ pub struct IntigritiAPI {
     api_token: String,
     client: reqwest::Client,
     base_url: String,
+    filter: String,
+    max_programs: usize,
 }
 
 impl IntigritiAPI {
     /// Create new Intigriti API client
-    pub fn new(api_token: String) -> Result<Self> {
+    pub fn new(api_token: String, filter: String, max_programs: usize) -> Result<Self> {
         let mut headers = HeaderMap::new();
         headers.insert(ACCEPT, HeaderValue::from_static("application/json"));
 
@@ -32,6 +34,8 @@ impl IntigritiAPI {
             api_token,
             client,
             base_url: "https://api.intigriti.com/external/researcher".to_string(),
+            filter,
+            max_programs,
         })
     }
 
@@ -234,6 +238,14 @@ impl PlatformAPI for IntigritiAPI {
         "Intigriti"
     }
 
+    async fn fetch_programs(&self) -> Result<Vec<Program>> {
+        self.fetch_programs_with_options(FetchOptions {
+            filter: self.filter.clone(),
+            max_programs: self.max_programs,
+            dry_run: false,
+        }).await
+    }
+
     async fn fetch_programs_with_options(&self, options: FetchOptions) -> Result<Vec<Program>> {
         let programs_list = self.fetch_programs_list_paginated(&options.filter, options.max_programs).await?;
         let total_programs = programs_list.len();
@@ -287,7 +299,7 @@ impl PlatformAPI for IntigritiAPI {
 
             if !domains.is_empty() {
                 info!(
-                    "✓ Program '{}' ({}): {} domains in scope",
+                    "✓ Intigriti: Program '{}' ({}): {} domains in scope",
                     name,
                     handle,
                     domains.len()
@@ -297,6 +309,7 @@ impl PlatformAPI for IntigritiAPI {
                     id: program_id.clone(),
                     name,
                     handle,
+                    platform: "Intigriti".to_string(),
                     domains,
                     hosts: Vec::new(), // Intigriti API doesn't separate hosts
                     in_scope: true,
@@ -353,7 +366,7 @@ mod tests {
 
     #[test]
     fn test_intigriti_api_creation() {
-        let api = IntigritiAPI::new("test_token".to_string());
+        let api = IntigritiAPI::new("test_token".to_string(), "following".to_string(), 100);
         assert!(api.is_ok());
     }
 }

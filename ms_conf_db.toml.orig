@@ -15,16 +15,10 @@ state_backend = "database"  # or "file" (default)
 # state_file = "ms-ct-scout-state.toml"
 
 # Include all logs from the list - including rejected, etc.
-include_all_logs = true
+include_all_logs = false
 # Maximum number of logs to monitor concurrently (default: 100)
 max_concurrent_logs = 250
 parse_precerts = true
-
-# Enable certificate deduplication (default: true)
-dedupe = true
-
-# Delay in seconds before reconnecting to failed CT logs (default: 30)
-reconnect_delay_secs = 30
 
 # Optional: Specify custom CT logs instead of fetching from list
 # custom_logs = [
@@ -39,33 +33,11 @@ url = "postgresql://ctscout:QT%2AvbqeaUb9Q%21i_Di-ku@ep-aged-recipe-ag2e2p2m-poo
 max_connections = 20
 
 [webhook]
-# url = "https://mws02-51689.wykr.es/webhook/dfb605f5-f4aa-4c5b-9781-22e0372ec67b"
-url = "https://mattermost.tarpan-newton.ts.net/hooks/1y4jj56cepgebft7nuoepqznge"
 # url = "https://blue-cosmos-69.webhook.cool"
 # url = "https://mws02-51689.wykr.es/webhook-test/dfb605f5-f4aa-4c5b-9781-22e0372ec67b" # test webhook
-# url = "https://mws02-51689.wykr.es/webhook/dfb605f5-f4aa-4c5b-9781-22e0372ec67b"
+url = "https://mws02-51689.wykr.es/webhook/dfb605f5-f4aa-4c5b-9781-22e0372ec67b"
 # secret = "enter_secret_here"      # optional, can be empty or ommited. If set, will create a X-Ctscout-Signature header with HMAC-SHA256 of the payload.
-timeout_secs = 10
-
-# ===== Redis Pub/Sub (RECOMMENDED - Primary Output Method) =====
-# Redis provides lower latency (~50ms vs ~200ms) compared to webhooks
-# and requires no additional webhook receiver service
-[redis]
-enabled = true           # Enable Redis publishing (RECOMMENDED for production)
-# url = "redis://localhost:6379"
-url = "rediss://default:AXgiAAIncDJlM2UyMGU2MDRlMjM0OWY4OTUwZjA5ZDBmOWYxYWQxMXAyMzA3NTQ@inviting-kodiak-30754.upstash.io:6379"
-# token = "your-upstash-token"     # For Upstash/TLS Redis (rediss://)
-channel = "bb:ct_events"
-queue_name = "bb:ct_events_queue"  # Optional: persistence queue
-max_queue_size = 10000
-require = true            # Set true to fail startup if Redis unavailable (strict mode)
-                           # Use --require-redis CLI flag to override
-
-# ===== Prometheus Metrics (Optional - For Observability) =====
-[metrics]
-enabled = false            # Export Prometheus metrics
-# export_path = ""         # Empty = stdout, or specify file path like "/tmp/metrics.txt"
-export_interval_secs = 60  # How often to export metrics
+timeout_secs = 5
 
 [platforms]
 sync_interval_hours = 6
@@ -84,10 +56,6 @@ api_token = "0F084816A8A7F8DD62F256DCFFCC79D29154FDC60EBAC066CE67469D2084893B-1"
 filter = "following"       # "following" (default) or "all"
 max_programs = 75          # Optional: override global max
 
-# Statistics display configuration
-[stats]
-enabled = false            # Display statistics during execution (default: false)
-interval_secs = 10         # Stats update interval in seconds (default: 10)
 
 [logging]
 level = "warning"
@@ -114,10 +82,6 @@ ips = [
 
 cidrs = [
 ]
-
-# Watch config file for changes and reload (default: false)
-# When enabled, logs at INFO level when changes are detected
-watch_config = false
 
 [[programs]]
 name = "Hilton"

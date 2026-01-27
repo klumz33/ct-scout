@@ -99,20 +99,22 @@ impl PlatformSyncManager {
         let mut total_domains_added = 0;
 
         for program in programs {
+            // Log with platform prefix for visibility
             info!(
-                "Adding {} domains from program: {}",
+                "Adding {} domains from program: {}: {}",
                 program.domains.len(),
+                program.platform,
                 program.name
             );
 
             for domain in program.domains {
-                // Add domain to watchlist with program name
-                watchlist.add_domain_to_program(&domain, &program.name);
+                // Add domain to watchlist with original name and platform info separately
+                watchlist.add_domain_to_program(&domain, &program.name, Some(program.platform.clone()));
                 total_domains_added += 1;
             }
 
             for host in program.hosts {
-                watchlist.add_host_to_program(&host, &program.name);
+                watchlist.add_host_to_program(&host, &program.name, Some(program.platform.clone()));
             }
         }
 
@@ -129,6 +131,7 @@ impl PlatformSyncManager {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use super::super::FetchOptions;
     use async_trait::async_trait;
 
     struct MockPlatform;
@@ -140,6 +143,14 @@ mod tests {
         }
 
         async fn fetch_programs(&self) -> Result<Vec<super::super::Program>> {
+            self.fetch_programs_with_options(FetchOptions {
+                filter: "all".to_string(),
+                max_programs: 100,
+                dry_run: false,
+            }).await
+        }
+
+        async fn fetch_programs_with_options(&self, _options: FetchOptions) -> Result<Vec<super::super::Program>> {
             Ok(vec![super::super::Program {
                 id: "1".to_string(),
                 name: "Test Program".to_string(),
@@ -147,6 +158,7 @@ mod tests {
                 domains: vec!["*.example.com".to_string()],
                 hosts: vec![],
                 in_scope: true,
+                platform: "Mock".to_string(),
             }])
         }
 

@@ -103,7 +103,10 @@ mod tests {
                 not_before: Some(1600000000),
                 not_after: Some(1700000000),
                 fingerprint: Some("abcdef123456".to_string()),
+                issuer: Some("Test CA".to_string()),
             }),
+            is_precert: false,
+            ct_log_url: Some("https://ct.example.com/log".to_string()),
         }
     }
 
@@ -279,6 +282,8 @@ mod tests {
             cert_index: None,
             seen_unix: None,
             leaf_cert: None,
+            is_precert: false,
+            ct_log_url: None,
         };
 
         let result = notifier.notify_match("minimal.com", &cert_data, None).await;

@@ -69,11 +69,17 @@ impl OutputHandler for HumanOutput {
             )?;
 
             if let Some(ref program) = result.program_name {
+                let program_display = if let Some(ref platform) = result.platform {
+                    format!("{} ({})", program, platform)
+                } else {
+                    program.clone()
+                };
+
                 writeln!(
                     writer,
                     "    {} {}",
                     "Program:".dimmed(),
-                    program.yellow()
+                    program_display.yellow()
                 )?;
             }
 
@@ -89,7 +95,13 @@ impl OutputHandler for HumanOutput {
             writeln!(writer, "[{}] [+] {}", timestamp, result.matched_domain)?;
 
             if let Some(ref program) = result.program_name {
-                writeln!(writer, "    Program: {}", program)?;
+                let program_display = if let Some(ref platform) = result.platform {
+                    format!("{} ({})", program, platform)
+                } else {
+                    program.clone()
+                };
+
+                writeln!(writer, "    Program: {}", program_display)?;
             }
 
             if result.all_domains.len() > 1 {
@@ -121,12 +133,15 @@ mod tests {
             cert_index: Some(123),
             seen_unix: Some(1234567890.0),
             leaf_cert: None,
+            is_precert: false,
+            ct_log_url: None,
         };
 
         let result = MatchResult::from_cert_data(
             "test.com".to_string(),
             &cert_data,
             Some("Test Program".to_string()),
+            None,
         );
 
         assert!(handler.emit_match(&result).await.is_ok());

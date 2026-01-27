@@ -213,7 +213,11 @@ impl DatabaseBackend for PostgresBackend {
                 not_after: row.get::<Option<i64>, _>("not_after").map(|i| i as u64),
                 fingerprint: row.get("fingerprint"),
                 program_name: row.get("program_name"),
+                platform: None, // TODO: Add platform column to database
                 seen_unix: row.get("seen_unix"),
+                issuer: None, // TODO: Add issuer column to database
+                is_precert: false, // TODO: Add is_precert column to database
+                ct_log_url: None, // TODO: Add ct_log_url column to database
             });
         }
 

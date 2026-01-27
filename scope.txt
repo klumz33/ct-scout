@@ -1,0 +1,140 @@
+[watchlist]
+domains = ["*.toolsforhumanity.com", "*.spapp.zabka.pl", "*.inspectorio.com", "*.world.org", "*.worldcoin.org", "*.zabka.pl", "*.socialdeal.nl"]
+hosts = []
+ips = []
+cidrs = []
+
+[[programs]]
+name = "Hilton"
+domains = [".hilton.com", ".hilton.io", "*.hiltonlocalbiz.com", "*.hiltonbusinessonline.com", "hilton.io", "hiltonlocalbiz.com", "hiltonbusinessonline.com", "*.hilton.io", "hilton.com", "*.hilton.com"]
+hosts = []
+ips = []
+cidrs = ["203.79.37.2/29", "192.251.125.0/24", "192.251.124.0/24", "62.216.152.46/29", "192.251.123.0/24", "192.251.126.0/24", "82.196.42.196/28", "121.200.237.36/29", "167.187.0.0/16"]
+
+[[programs]]
+name = "IBM"
+domains = [".ibm.com"]
+hosts = []
+ips = []
+cidrs = []
+
+[[programs]]
+name = "Inspectorio"
+domains = ["files-stg.inspectorio.com", "report-html-sight.stg.inspectorio.com", "docuflow.stg.inspectorio.com", "app.stg.inspectorio.com", "rise.stg.inspectorio.com", "id.stg.inspectorio.com", "rise-api.stg.inspectorio.com", "api.stg.inspectorio.com"]
+hosts = ["rise.stg.inspectorio.com", "rise-api.stg.inspectorio.com", "report-html-sight.stg.inspectorio.com", "id.stg.inspectorio.com", "files-stg.inspectorio.com", "docuflow.stg.inspectorio.com", "app.stg.inspectorio.com", "api.stg.inspectorio.com"]
+ips = []
+cidrs = []
+
+[[programs]]
+name = "Flat"
+domains = ["api.flat.io", "flat.io"]
+hosts = []
+ips = []
+cidrs = []
+
+[[programs]]
+name = "Remitly"
+domains = ["cardpayments.remitly.io", "access-sandbox.remitly.com", "access.remitly.com", "media.remitly.io", "*.dev.remitly.com", "ir.remitly.com", "site.rewire.com", "rates.rewire.com", "app.rewire.to", "ablink.info.remitly.com", "partner-webhook.remitly.io", "careers.remitly.com", "rewire.com", "news.remitly.com", "*.int.remitly.com", "cards.remitly.io", "app3.rewire.to", "auth.remitly.com", "metrics.int.remitly.com", "api.remitly.io", "blog.remitly.com", "remitly.com"]
+hosts = []
+ips = []
+cidrs = []
+
+[[programs]]
+name = "Remote | Vulnerability Disclosure Program"
+domains = ["employ.remote.com", "api.remote.com"]
+hosts = []
+ips = []
+cidrs = []
+
+[[programs]]
+name = "Alohi"
+domains = ["www.alohi.com", "*.sign.plus", "*.fax.plus"]
+hosts = []
+ips = []
+cidrs = []
+
+[[programs]]
+name = "City of Los Angeles"
+domains = ["*.lacity.org", "*.lacity.gov"]
+hosts = []
+ips = []
+cidrs = []
+
+[[programs]]
+name = "Mergify"
+domains = ["dashboard.mergify.com", "api.mergify.com"]
+hosts = []
+ips = []
+cidrs = []
+
+[[programs]]
+name = "NiceHash"
+domains = ["test.nicehash.com", "api-test.nicehash.com"]
+hosts = []
+ips = []
+cidrs = []
+
+[[programs]]
+name = "Tools for Humanity"
+domains = ["*.worldcoin-distributors.com", "*.worldcoin.dev", "*.consumer.worldcoin.org", "getworldcoin.com", "id.worldcoin.org", "world.org", "toolsforhumanity.com", "*.worldcoin.org", "*.toolsforhumanity.com", "worldcoin.org", "developer.worldcoin.org"]
+hosts = []
+ips = []
+cidrs = []
+
+[[programs]]
+name = "Porsche"
+domains = ["porsche-villingen.de", "porsche-zentrum-essen.de", "porsche-zentrum-niederrhein.de", "porsche-zentrum-paderborn.de", "porsche-zentrum-reutlingen.de", "porsche-zentrum-seestern.de", "porsche-zentrum-solingen-remscheid.de", "porschezentrum-berlin-sued.de", "porschezentrum-muenchen-sued.de", "pzsf.de", "studio-fa-porsche.de", "xn--porsche-alttting-wwb.de", "capitalmarketsday.porsche.com", "porsche-dortmund.eu", "microsite.porsche.com", "pzsc.de", "porschezentrumbremen.de", "es.porsche.com", "porschetravels.com", "studio-fa-porsche.at", "pzms.de", "porshedesign.com", "porsche-zentrum-pforzheim.de", "pzk.de", "porsche-stuttgart.de", "xn--porsche-lbeck-4ob.de", "studiofaporsche.net", "porsche-hahn.de", "studio-fa-porsche.net", "porsche-ulm.de", "porsche-zentrum.com", "porsche-stuttgart-flughafen.de", "porsche.biz", "porschegolfusa.com", "pzm.de", "studiofaporsche.de", "paris.porsche.com", "xn--porsche-mnchen-sd-b3bh.de", "porschezentrum-berlin.de", "christmas-silence.porsche.com", "xn--porsche-nrnberg-7vb.de", "xn--porsche-gttingen-uwb.de", "xn--porsche-gppingen-uwb.de", "xn--porsche-schwbisch-gmnd-c5b89c.de", "investorrelations.porsche.de", "xn--porsche-lneburg-7vb.de", "b2b.porsche-design.com", "xn--porsche-kln-zfb.de", "studiofaporsche.at", "porshe-design.com", "studio-fa-porsche.com", "api-frontend.pab.porsche.com", "skyway.porsche.com", "porsche-olympiapark.de", "pab.porsche.com", "prod.porsche-design.com", "cm.staging.pcom.weu.porsche.com", "myhistory.porsche.com", "porsche.it", "auth.pab.porsche.com", "api.ppa.porsche.com", "checkout.porsche.com", "compare.porsche.com", "friends.porsche-design.com", "timepeacesconfigurator.porsche-design.com", "porsche.digital", "ecc.porsche.com", "api.pab.porsche.com", "porsche-poster.com", "connect-store.porsche.com", "studiofaporsche.com", "jobs.porsche.com", "porsche.de", "jobs.porsche-design.com", "xn--porsche-wrzburg-7vb.de", "porscheengineering.com", "press.porsche-design.com", "www-staging.porscheautoinsurance.com", "benefit.porsche-design.com", "identity.porsche.com", "porsche-erfahren.de", "porscheenglewood.com", "experience.porsche.com", "porsche-hamburgnordwest.de", "ui.pab.porsche.com", "api.emea.gravity.porsche.com", "porsche-wiesbaden.de", "drive.porsche.com", "configurator.porsche.com", "porsche-design.com", "press.porsche.com", "signup.porsche.com", "porschediesellookup.com", "porsche-zentrum-olympiapark.de", "porsche-zentrum-wuppertal.de", "finder.porsche.com", "porsche-solingen.de", "porsche-essen.de", "porsche-giessen.de", "porsche-moers.de", "porsche-paderborn.de", "porsche-koeln.de", "porsche-kempten.de", "porsche-duesseldorf.de", "my.porsche.com", "dealer.porsche.com", "shop.porsche.com", "porsche.com", "porschefortcollins.com"]
+hosts = []
+ips = []
+cidrs = []
+
+[[programs]]
+name = "is*hosting"
+domains = ["ishosting.com", "my.ishosting.com"]
+hosts = []
+ips = []
+cidrs = []
+
+[[programs]]
+name = "Syfe"
+domains = ["mark8.syfe.com", "api-uat-bugbounty.nonprod.syfe.com", "alfred.syfe.com", "api.syfe.com", "alfred-uat-31.nonprod.syfe.com", "www.syfe.com", "uat-bugbounty.nonprod.syfe.com"]
+hosts = []
+ips = []
+cidrs = []
+
+[[programs]]
+name = "Neon"
+domains = ["console.neon.tech", "console-stage.neon.build"]
+hosts = []
+ips = []
+cidrs = []
+
+[[programs]]
+name = "Whoop Bug Bounty"
+domains = ["app.whoop.com", "shop.whoop.com", "api.prod.whoop.com"]
+hosts = []
+ips = []
+cidrs = []
+
+[[programs]]
+name = "Zabka Polska Bug Bounty"
+domains = ["czs.superlogin.pl", "*.spapp.zabka.pl"]
+hosts = []
+ips = []
+cidrs = []
+
+[[programs]]
+name = "Social Deal"
+domains = ["socialdeal.nl", "www.whynot.com", "www.socialdeal.nl"]
+hosts = []
+ips = []
+cidrs = []
+
+[[programs]]
+name = "Cloudways by DigitalOcean"
+domains = ["*.cloudways.com", "api.cloudways.com", "developers.cloudways.com", "platform.cloudways.com", "unified.cloudways.com", "www.cloudways.com", "css-tricks.com"]
+hosts = []
+ips = []
+cidrs = []
+
+

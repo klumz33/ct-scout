@@ -113,7 +113,9 @@ async fn test_end_to_end_domain_matching() {
     let programs = vec![ProgramConfig {
         name: "IBM".to_string(),
         domains: vec![".ibm.com".to_string()],
+        hosts: vec![],
         cidrs: vec![],
+        ips: vec![],
     }];
 
     let watchlist = Watchlist::from_config(&watchlist_config, &programs).unwrap();
@@ -332,7 +334,9 @@ async fn test_program_assignment() {
     let programs = vec![ProgramConfig {
         name: "Hilton".to_string(),
         domains: vec![".hilton.com".to_string()],
+        hosts: vec![],
         cidrs: vec![],
+        ips: vec![],
     }];
 
     let watchlist = Watchlist::from_config(&watchlist_config, &programs).unwrap();

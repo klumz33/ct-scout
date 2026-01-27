@@ -11,6 +11,8 @@ pub struct ParsedCert {
     pub not_before: Option<u64>,
     pub not_after: Option<u64>,
     pub fingerprint: String,
+    pub issuer: Option<String>,
+    pub is_precert: bool,
 }
 
 /// Certificate parser for extracting domains and metadata
@@ -66,11 +68,16 @@ impl CertificateParser {
         let not_before = Some(cert.validity().not_before.timestamp() as u64);
         let not_after = Some(cert.validity().not_after.timestamp() as u64);
 
+        // Extract issuer
+        let issuer = Self::extract_issuer(&cert);
+
         Ok(ParsedCert {
             domains,
             not_before,
             not_after,
             fingerprint,
+            issuer,
+            is_precert: false, // parse_full is for regular certs
         })
     }
 
@@ -86,6 +93,23 @@ impl CertificateParser {
             }
         }
         None
+    }
+
+    /// Extract issuer from certificate
+    fn extract_issuer(cert: &X509Certificate) -> Option<String> {
+        // Try to get CN from issuer
+        for rdn in cert.issuer().iter() {
+            for attr in rdn.iter() {
+                if attr.attr_type() == &oid_registry::OID_X509_COMMON_NAME {
+                    if let Ok(cn) = attr.attr_value().as_str() {
+                        return Some(cn.to_string());
+                    }
+                }
+            }
+        }
+
+        // Fallback: return full issuer DN as string
+        Some(cert.issuer().to_string())
     }
 
     /// Parse CT log entry (handles both x509_entry and precert_entry types)
@@ -124,7 +148,7 @@ impl CertificateParser {
                 let end_pos = std::cmp::min(15 + cert_len, leaf_bytes.len());
                 let cert_der = &leaf_bytes[15..end_pos];
 
-                Self::extract_full_cert_from_der(cert_der)
+                Self::extract_full_cert_from_der(cert_der, false)
             }
             1 => {
                 // precert_entry: Skip if precert parsing is disabled
@@ -154,7 +178,7 @@ impl CertificateParser {
                 // Extract precertificate DER (full X.509 certificate with poison extension)
                 let precert_der = &extra_bytes[3..3 + precert_len];
 
-                Self::extract_full_cert_from_der(precert_der)
+                Self::extract_full_cert_from_der(precert_der, true)
             }
             _ => {
                 anyhow::bail!("Unknown entry type: {}", entry_type);
@@ -169,7 +193,7 @@ impl CertificateParser {
     }
 
     /// Extract full certificate metadata from DER-encoded certificate
-    fn extract_full_cert_from_der(der_bytes: &[u8]) -> Result<ParsedCert> {
+    fn extract_full_cert_from_der(der_bytes: &[u8], is_precert: bool) -> Result<ParsedCert> {
         // Calculate SHA-256 fingerprint
         let fingerprint = {
             let mut hasher = Sha256::new();
@@ -205,11 +229,16 @@ impl CertificateParser {
         let not_before = Some(cert.validity().not_before.timestamp() as u64);
         let not_after = Some(cert.validity().not_after.timestamp() as u64);
 
+        // Extract issuer
+        let issuer = Self::extract_issuer(&cert);
+
         Ok(ParsedCert {
             domains,
             not_before,
             not_after,
             fingerprint,
+            issuer,
+            is_precert,
         })
     }
 }

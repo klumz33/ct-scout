@@ -55,6 +55,8 @@ mod tests {
             cert_index: Some(12345),
             seen_unix: Some(1234567890.0),
             leaf_cert: None,
+            is_precert: false,
+            ct_log_url: None,
         };
 
         let cert_data2 = CertData {
@@ -62,6 +64,8 @@ mod tests {
             cert_index: Some(12345), // Same index
             seen_unix: Some(1234567891.0),
             leaf_cert: None,
+            is_precert: false,
+            ct_log_url: None,
         };
 
         let cert_data3 = CertData {
@@ -69,6 +73,8 @@ mod tests {
             cert_index: Some(67890), // Different index
             seen_unix: Some(1234567892.0),
             leaf_cert: None,
+            is_precert: false,
+            ct_log_url: None,
         };
 
         // First cert should be emitted
@@ -93,7 +99,10 @@ mod tests {
                 not_before: Some(1600000000),
                 not_after: Some(1700000000),
                 fingerprint: Some("abc123def456".to_string()),
+                issuer: None,
             }),
+            is_precert: false,
+            ct_log_url: None,
         };
 
         let cert_data2 = CertData {
@@ -104,7 +113,10 @@ mod tests {
                 not_before: Some(1600000000),
                 not_after: Some(1700000000),
                 fingerprint: Some("abc123def456".to_string()), // Same fingerprint
+                issuer: None,
             }),
+            is_precert: false,
+            ct_log_url: None,
         };
 
         let cert_data3 = CertData {
@@ -115,7 +127,10 @@ mod tests {
                 not_before: Some(1600000000),
                 not_after: Some(1700000000),
                 fingerprint: Some("xyz789ghi012".to_string()), // Different fingerprint
+                issuer: None,
             }),
+            is_precert: false,
+            ct_log_url: None,
         };
 
         assert!(dedupe.should_emit(&cert_data1).await);
@@ -135,7 +150,10 @@ mod tests {
                 not_before: Some(1600000000),
                 not_after: Some(1700000000),
                 fingerprint: Some("fingerprint1".to_string()),
+                issuer: None,
             }),
+            is_precert: false,
+            ct_log_url: None,
         };
 
         let cert_data2 = CertData {
@@ -146,7 +164,10 @@ mod tests {
                 not_before: Some(1600000000),
                 not_after: Some(1700000000),
                 fingerprint: Some("fingerprint2".to_string()), // Different fingerprint
+                issuer: None,
             }),
+            is_precert: false,
+            ct_log_url: None,
         };
 
         assert!(dedupe.should_emit(&cert_data1).await);
@@ -163,6 +184,8 @@ mod tests {
             cert_index: None,
             seen_unix: Some(1234567890.0),
             leaf_cert: None,
+            is_precert: false,
+            ct_log_url: None,
         };
 
         let cert_data2 = CertData {
@@ -170,6 +193,8 @@ mod tests {
             cert_index: None,
             seen_unix: Some(1234567891.0),
             leaf_cert: None,
+            is_precert: false,
+            ct_log_url: None,
         };
 
         // Both should be emitted since there's no way to dedupe
@@ -189,7 +214,10 @@ mod tests {
                 not_before: Some(1600000000),
                 not_after: Some(1700000000),
                 fingerprint: None, // No fingerprint
+                issuer: None,
             }),
+            is_precert: false,
+            ct_log_url: None,
         };
 
         let cert_data2 = CertData {
@@ -200,7 +228,10 @@ mod tests {
                 not_before: Some(1600000000),
                 not_after: Some(1700000000),
                 fingerprint: None,
+                issuer: None,
             }),
+            is_precert: false,
+            ct_log_url: None,
         };
 
         // Both should be emitted since there's no fingerprint
@@ -218,6 +249,8 @@ mod tests {
             cert_index: Some(999),
             seen_unix: Some(1234567890.0),
             leaf_cert: None,
+            is_precert: false,
+            ct_log_url: None,
         };
 
         // Emit through first instance

@@ -65,7 +65,11 @@ is-terminal = "0.4"
 sqlx = { version = "0.8.6", features = ["runtime-tokio-rustls", "postgres", "migrate"] }
 
 # Redis Pub/Sub
-redis = { version = "0.27", features = ["tokio-comp", "connection-manager"] }
+redis = { version = "0.27", features = ["tokio-comp", "connection-manager", "tokio-native-tls-comp"] }
+
+# Prometheus Metrics
+prometheus = { version = "0.13", default-features = false }
+lazy_static = "1.4"
 
 [dev-dependencies]
 tempfile = "3"

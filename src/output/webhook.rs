@@ -117,12 +117,15 @@ mod tests {
             cert_index: Some(123),
             seen_unix: Some(1234567890.0),
             leaf_cert: None,
+            is_precert: false,
+            ct_log_url: None,
         };
 
         let result = MatchResult::from_cert_data(
             "test.com".to_string(),
             &cert_data,
             Some("Test Program".to_string()),
+            None,
         );
 
         assert!(handler.emit_match(&result).await.is_ok());
@@ -151,11 +154,14 @@ mod tests {
             cert_index: Some(123),
             seen_unix: Some(1234567890.0),
             leaf_cert: None,
+            is_precert: false,
+            ct_log_url: None,
         };
 
         let result = MatchResult::from_cert_data(
             "test.com".to_string(),
             &cert_data,
+            None,
             None,
         );
 

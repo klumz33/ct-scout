@@ -176,13 +176,15 @@ impl CtLogCoordinator {
                 stats.increment_matches();
 
                 let program = watchlist_guard.program_for_domain(d);
-                let program_name = program.map(|p| p.name.clone());
+                let program_name = program.as_ref().map(|p| p.name.clone());
+                let platform = program.as_ref().and_then(|p| p.platform.clone());
 
                 // Create match result
                 let result = MatchResult::from_cert_data(
                     d.to_string(),
                     data,
                     program_name,
+                    platform,
                 );
 
                 // Emit to all output handlers

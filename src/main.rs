@@ -6,6 +6,7 @@ use ct_scout::ct_log::{CtLogCoordinator, LogListFetcher};
 use ct_scout::database::{DatabaseBackend, PostgresBackend};
 use ct_scout::dedupe::Dedupe;
 use ct_scout::filter::RootDomainFilter;
+use ct_scout::metrics;
 use ct_scout::output::{self, csv, human, json, silent, webhook, OutputManager};
 use ct_scout::platforms::{HackerOneAPI, IntigritiAPI, PlatformAPI, PlatformSyncManager};
 use ct_scout::redis_publisher;
@@ -68,6 +69,27 @@ async fn main() -> anyhow::Result<()> {
 
     tracing::info!("Starting ct-scout...");
 
+    // Initialize Prometheus metrics if enabled
+    if config.metrics.enabled {
+        if let Err(e) = metrics::init_metrics() {
+            tracing::warn!("Failed to initialize metrics registry: {}", e);
+        } else {
+            tracing::info!("Prometheus metrics enabled");
+
+            let metrics_config = metrics::MetricsConfig {
+                enabled: config.metrics.enabled,
+                export_path: config.metrics.export_path.clone(),
+                export_interval_secs: config.metrics.export_interval_secs,
+            };
+
+            tokio::spawn(async move {
+                metrics::metrics_exporter_task(metrics_config).await;
+            });
+        }
+    } else {
+        tracing::debug!("Prometheus metrics disabled");
+    }
+
     // Start config file watcher if enabled
     // Precedence: CLI flag overrides config
     let watch_config_enabled = if cli.watch_config {
@@ -109,9 +131,11 @@ async fn main() -> anyhow::Result<()> {
     let (platform_shutdown_tx, platform_shutdown_rx) = tokio::sync::watch::channel(false);
     let mut platform_sync_handle = None;
 
-    if config.platforms.hackerone.as_ref().map(|h| h.enabled).unwrap_or(false)
-        || config.platforms.intigriti.as_ref().map(|i| i.enabled).unwrap_or(false)
-    {
+    // Check if platforms are enabled
+    let platforms_enabled = config.platforms.hackerone.as_ref().map(|h| h.enabled).unwrap_or(false)
+        || config.platforms.intigriti.as_ref().map(|i| i.enabled).unwrap_or(false);
+
+    if platforms_enabled {
         tracing::info!("Platform API integration enabled, initializing sync manager...");
 
         let mut platforms: Vec<Box<dyn PlatformAPI>> = Vec::new();
@@ -120,15 +144,22 @@ async fn main() -> anyhow::Result<()> {
         if let Some(h1_config) = &config.platforms.hackerone {
             if h1_config.enabled {
                 tracing::info!("Initializing HackerOne API integration");
+
+                // Get filter and max_programs from config with defaults
+                let filter = h1_config.filter.clone();
+                let max_programs = h1_config.max_programs.unwrap_or(config.platforms.max_programs_per_platform);
+
                 let h1_api = HackerOneAPI::new(
                     h1_config.username.clone(),
                     h1_config.api_token.clone(),
+                    filter.clone(),
+                    max_programs,
                 )?;
 
                 // Test connection
                 match h1_api.test_connection().await {
                     Ok(true) => {
-                        tracing::info!("HackerOne API connection successful");
+                        tracing::info!("HackerOne API connection successful (filter: {}, max: {})", filter, max_programs);
                         platforms.push(Box::new(h1_api));
                     }
                     Ok(false) => {
@@ -145,12 +176,21 @@ async fn main() -> anyhow::Result<()> {
         if let Some(intigriti_config) = &config.platforms.intigriti {
             if intigriti_config.enabled {
                 tracing::info!("Initializing Intigriti API integration");
-                let intigriti_api = IntigritiAPI::new(intigriti_config.api_token.clone())?;
+
+                // Get filter and max_programs from config with defaults
+                let filter = intigriti_config.filter.clone();
+                let max_programs = intigriti_config.max_programs.unwrap_or(config.platforms.max_programs_per_platform);
+
+                let intigriti_api = IntigritiAPI::new(
+                    intigriti_config.api_token.clone(),
+                    filter.clone(),
+                    max_programs,
+                )?;
 
                 // Test connection
                 match intigriti_api.test_connection().await {
                     Ok(true) => {
-                        tracing::info!("Intigriti API connection successful");
+                        tracing::info!("Intigriti API connection successful (filter: {}, max: {})", filter, max_programs);
                         platforms.push(Box::new(intigriti_api));
                     }
                     Ok(false) => {
@@ -171,21 +211,58 @@ async fn main() -> anyhow::Result<()> {
                 config.platforms.sync_interval_hours,
             );
 
-            // Spawn platform sync manager as background task
-            let shutdown_rx_clone = platform_shutdown_rx.clone();
-            platform_sync_handle = Some(tokio::spawn(async move {
-                sync_manager.run(shutdown_rx_clone).await;
-            }));
+            // If --export-scope is set, run initial sync synchronously then export and exit
+            if cli.export_scope {
+                tracing::info!("--export-scope: Running initial platform sync before export...");
 
-            tracing::info!(
-                "Platform sync manager started (sync interval: {} hours)",
-                config.platforms.sync_interval_hours
-            );
+                // Create a shutdown channel for the single sync
+                let (export_shutdown_tx, export_shutdown_rx) = tokio::sync::watch::channel(false);
+
+                // Spawn sync manager to run the initial sync
+                // The sync_all_platforms() is called immediately at the start of run()
+                let sync_handle = tokio::spawn(async move {
+                    sync_manager.run(export_shutdown_rx).await;
+                });
+
+                // Give it time to complete the initial sync
+                // Most API calls complete within a few seconds
+                tokio::time::sleep(Duration::from_secs(3)).await;
+
+                // Signal shutdown to stop the periodic loop
+                export_shutdown_tx.send(true).ok();
+
+                // Wait for the sync task to finish
+                sync_handle.await.ok();
+
+                tracing::info!("Initial platform sync complete. Exporting scope...");
+                let watchlist_guard = watchlist.lock().await;
+                let toml_output = watchlist_guard.export_to_toml();
+                println!("{}", toml_output);
+                tracing::info!("Export complete. Exiting.");
+                return Ok(());
+            } else {
+                // Normal mode: spawn platform sync manager as background task
+                let shutdown_rx_clone = platform_shutdown_rx.clone();
+                platform_sync_handle = Some(tokio::spawn(async move {
+                    sync_manager.run(shutdown_rx_clone).await;
+                }));
+
+                tracing::info!(
+                    "Platform sync manager started (sync interval: {} hours)",
+                    config.platforms.sync_interval_hours
+                );
+            }
+        } else if cli.export_scope {
+            // No platforms available but export-scope requested
+            tracing::info!("No platforms available. Exporting config-only scope...");
+            let watchlist_guard = watchlist.lock().await;
+            let toml_output = watchlist_guard.export_to_toml();
+            println!("{}", toml_output);
+            tracing::info!("Export complete. Exiting.");
+            return Ok(());
         }
-    }
-
-    // Handle --export-scope flag
-    if cli.export_scope {
+    } else if cli.export_scope {
+        // Platforms not enabled, export config-only scope
         tracing::info!("Exporting current scope to TOML format...");
         let watchlist_guard = watchlist.lock().await;
         let toml_output = watchlist_guard.export_to_toml();
@@ -291,6 +368,15 @@ async fn main() -> anyhow::Result<()> {
 
         let redis_pub = Arc::new(redis_publisher::RedisPublisher::new(redis_config));
 
+        // Determine strict mode (CLI > Config > Default)
+        let redis_required = if cli.require_redis {
+            true
+        } else if cli.no_require_redis {
+            false
+        } else {
+            config.redis.require
+        };
+
         // Try to connect to Redis
         match redis_pub.connect().await {
             Ok(_) => {
@@ -300,10 +386,44 @@ async fn main() -> anyhow::Result<()> {
                 tracing::info!("Redis publisher enabled: channel={}", config.redis.channel);
             }
             Err(e) => {
+                if redis_required {
+                    // STRICT MODE: Fail on connection error
+                    tracing::error!("Redis connection REQUIRED but failed: {}", e);
+                    anyhow::bail!(
+                        "Redis connection failed and --require-redis is set.\n\
+                        \n\
+                        Error: {}\n\
+                        \n\
+                        Redis is configured as required but the connection could not be established.\n\
+                        \n\
+                        Possible solutions:\n\
+                        1. Check Redis is running: redis-cli ping\n\
+                        2. Verify Redis URL in config: {}\n\
+                        3. Check network connectivity to Redis server\n\
+                        4. Remove --require-redis flag to allow optional Redis\n\
+                        5. Set require=false in [redis] config section\n\
+                        \n\
+                        ct-scout will not start without Redis when in strict mode.",
+                        e,
+                        config.redis.url
+                    );
+                }
+
+                // LENIENT MODE: Graceful fallback
                 tracing::error!("Failed to connect to Redis: {}", e);
-                tracing::warn!("Continuing without Redis publishing");
+                tracing::warn!("Continuing without Redis publishing (use --require-redis to make this fatal)");
             }
         }
+    } else if cli.require_redis {
+        // Redis is required via CLI but not enabled in config
+        anyhow::bail!(
+            "Redis connection required (--require-redis) but Redis is not enabled in config.\n\
+            \n\
+            To fix this:\n\
+            1. Set [redis] enabled = true in your config file\n\
+            2. Configure Redis URL and other settings\n\
+            3. Or remove --require-redis flag if Redis should be optional"
+        );
     } else {
         tracing::debug!("Redis publishing disabled");
     }
