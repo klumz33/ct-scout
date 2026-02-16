@@ -22,6 +22,7 @@ ct-scout-state*.toml
 *.swp
 *.swo
 *~
+.claude/
 
 # Test outputs
 /tmp/
